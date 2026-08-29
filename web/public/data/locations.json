@@ -1,0 +1,579 @@
+[
+  {
+    "id": "MANCHESTER",
+    "name": "曼彻斯特",
+    "slots": [
+      [
+        "cotton",
+        "coal"
+      ],
+      [
+        "cotton",
+        "coal"
+      ],
+      [
+        "cotton",
+        "coal"
+      ],
+      [
+        "iron"
+      ]
+    ],
+    "canal_adj": [
+      "STOCKPORT",
+      "OLDHAM",
+      "BURY",
+      "BOLTON",
+      "WARRINGTONANDRUNCORN"
+    ],
+    "rail_adj": [
+      "STOCKPORT",
+      "OLDHAM",
+      "BURY",
+      "BOLTON",
+      "WARRINGTONANDRUNCORN"
+    ],
+    "rail_only": false,
+    "market": false,
+    "conn_marks": 0
+  },
+  {
+    "id": "THEMIDLANDS",
+    "name": "米德兰兹",
+    "slots": [],
+    "canal_adj": [
+      "NORTHWICH",
+      "MACCLESFIELD"
+    ],
+    "rail_adj": [
+      "NORTHWICH",
+      "MACCLESFIELD"
+    ],
+    "rail_only": false,
+    "market": true,
+    "conn_marks": 2
+  },
+  {
+    "id": "NORTHWICH",
+    "name": "诺斯维奇",
+    "slots": [],
+    "canal_adj": [
+      "THEMIDLANDS",
+      "ELLESMEREPORT"
+    ],
+    "rail_adj": [
+      "THEMIDLANDS",
+      "ELLESMEREPORT"
+    ],
+    "rail_only": false,
+    "market": false,
+    "conn_marks": 2
+  },
+  {
+    "id": "MACCLESFIELD",
+    "name": "麦克尔斯菲尔德",
+    "slots": [
+      [
+        "cotton"
+      ],
+      [
+        "cotton"
+      ]
+    ],
+    "canal_adj": [
+      "THEMIDLANDS",
+      "STOCKPORT"
+    ],
+    "rail_adj": [
+      "THEMIDLANDS",
+      "STOCKPORT"
+    ],
+    "rail_only": false,
+    "market": false,
+    "conn_marks": 0
+  },
+  {
+    "id": "ELLESMEREPORT",
+    "name": "埃尔斯米尔港",
+    "slots": [
+      [
+        "port"
+      ]
+    ],
+    "canal_adj": [
+      "WARRINGTONANDRUNCORN",
+      "NORTHWICH",
+      "LIVERPOOL"
+    ],
+    "rail_adj": [
+      "WARRINGTONANDRUNCORN",
+      "NORTHWICH",
+      "BIRKENHEAD"
+    ],
+    "rail_only": false,
+    "market": false,
+    "conn_marks": 0
+  },
+  {
+    "id": "STOCKPORT",
+    "name": "斯托克波特",
+    "slots": [
+      [
+        "cotton"
+      ],
+      [
+        "cotton"
+      ]
+    ],
+    "canal_adj": [
+      "MACCLESFIELD",
+      "MANCHESTER"
+    ],
+    "rail_adj": [
+      "MACCLESFIELD",
+      "MANCHESTER"
+    ],
+    "rail_only": false,
+    "market": false,
+    "conn_marks": 0
+  },
+  {
+    "id": "BIRKENHEAD",
+    "name": "伯肯黑德",
+    "slots": [
+      [
+        "shipyard"
+      ]
+    ],
+    "canal_adj": [],
+    "rail_adj": [
+      "ELLESMEREPORT"
+    ],
+    "rail_only": false,
+    "market": false,
+    "conn_marks": 0
+  },
+  {
+    "id": "LIVERPOOL",
+    "name": "利物浦",
+    "slots": [
+      [
+        "port"
+      ],
+      [
+        "port"
+      ],
+      [
+        "port"
+      ],
+      [
+        "shipyard"
+      ]
+    ],
+    "canal_adj": [
+      "WIGAN",
+      "ELLESMEREPORT"
+    ],
+    "rail_adj": [
+      "SOUTHPORT",
+      "WIGAN",
+      "WARRINGTONANDRUNCORN"
+    ],
+    "rail_only": false,
+    "market": false,
+    "conn_marks": 0
+  },
+  {
+    "id": "SOUTHPORT",
+    "name": "绍斯波特",
+    "slots": [],
+    "canal_adj": [],
+    "rail_adj": [
+      "WIGAN",
+      "LIVERPOOL",
+      "PRESTON"
+    ],
+    "rail_only": true,
+    "market": false,
+    "conn_marks": 2
+  },
+  {
+    "id": "PRESTON",
+    "name": "普雷斯顿",
+    "slots": [
+      [
+        "cotton",
+        "port"
+      ],
+      [
+        "iron"
+      ],
+      [
+        "port"
+      ]
+    ],
+    "canal_adj": [
+      "FLEETWOOD",
+      "LANCASTER",
+      "WIGAN"
+    ],
+    "rail_adj": [
+      "SOUTHPORT",
+      "BLACKPOOL",
+      "FLEETWOOD",
+      "LANCASTER",
+      "BLACKBURN",
+      "WIGAN"
+    ],
+    "rail_only": false,
+    "market": false,
+    "conn_marks": 0
+  },
+  {
+    "id": "BLACKPOOL",
+    "name": "布莱克浦",
+    "slots": [],
+    "canal_adj": [],
+    "rail_adj": [
+      "PRESTON"
+    ],
+    "rail_only": true,
+    "market": false,
+    "conn_marks": 2
+  },
+  {
+    "id": "FLEETWOOD",
+    "name": "弗利特伍德",
+    "slots": [
+      [
+        "port"
+      ]
+    ],
+    "canal_adj": [
+      "PRESTON"
+    ],
+    "rail_adj": [
+      "PRESTON"
+    ],
+    "rail_only": false,
+    "market": false,
+    "conn_marks": 0
+  },
+  {
+    "id": "LANCASTER",
+    "name": "兰开斯特",
+    "slots": [
+      [
+        "port"
+      ],
+      [
+        "cotton",
+        "port"
+      ]
+    ],
+    "canal_adj": [
+      "PRESTON"
+    ],
+    "rail_adj": [
+      "PRESTON",
+      "BARROW-IN-FURNESS",
+      "SCOTLAND"
+    ],
+    "rail_only": false,
+    "market": false,
+    "conn_marks": 0
+  },
+  {
+    "id": "BLACKBURN",
+    "name": "布莱克本",
+    "slots": [
+      [
+        "cotton",
+        "coal"
+      ],
+      [
+        "cotton",
+        "coal"
+      ],
+      [
+        "iron"
+      ]
+    ],
+    "canal_adj": [
+      "BURNLEY",
+      "WIGAN"
+    ],
+    "rail_adj": [
+      "PRESTON",
+      "BOLTON",
+      "BURNLEY",
+      "WIGAN"
+    ],
+    "rail_only": false,
+    "market": false,
+    "conn_marks": 0
+  },
+  {
+    "id": "BARROW-IN-FURNESS",
+    "name": "巴罗因弗内斯",
+    "slots": [
+      [
+        "shipyard"
+      ],
+      [
+        "iron"
+      ]
+    ],
+    "canal_adj": [],
+    "rail_adj": [
+      "LANCASTER"
+    ],
+    "rail_only": false,
+    "market": false,
+    "conn_marks": 0
+  },
+  {
+    "id": "SCOTLAND",
+    "name": "苏格兰",
+    "slots": [],
+    "canal_adj": [],
+    "rail_adj": [
+      "LANCASTER"
+    ],
+    "rail_only": false,
+    "market": true,
+    "conn_marks": 2
+  },
+  {
+    "id": "BOLTON",
+    "name": "博尔顿",
+    "slots": [
+      [
+        "cotton",
+        "coal"
+      ],
+      [
+        "cotton",
+        "coal"
+      ],
+      [
+        "iron"
+      ]
+    ],
+    "canal_adj": [
+      "BURY",
+      "MANCHESTER"
+    ],
+    "rail_adj": [
+      "BLACKBURN",
+      "WIGAN",
+      "BURY",
+      "MANCHESTER"
+    ],
+    "rail_only": false,
+    "market": false,
+    "conn_marks": 0
+  },
+  {
+    "id": "BURNLEY",
+    "name": "伯恩利",
+    "slots": [
+      [
+        "cotton",
+        "coal"
+      ],
+      [
+        "cotton",
+        "coal"
+      ]
+    ],
+    "canal_adj": [
+      "BLACKBURN",
+      "COLNE"
+    ],
+    "rail_adj": [
+      "BLACKBURN",
+      "COLNE",
+      "BURY"
+    ],
+    "rail_only": false,
+    "market": false,
+    "conn_marks": 0
+  },
+  {
+    "id": "WIGAN",
+    "name": "维根",
+    "slots": [
+      [
+        "coal"
+      ],
+      [
+        "coal"
+      ]
+    ],
+    "canal_adj": [
+      "PRESTON",
+      "LIVERPOOL",
+      "WARRINGTONANDRUNCORN",
+      "BLACKBURN"
+    ],
+    "rail_adj": [
+      "PRESTON",
+      "SOUTHPORT",
+      "LIVERPOOL",
+      "WARRINGTONANDRUNCORN",
+      "BOLTON",
+      "BLACKBURN"
+    ],
+    "rail_only": false,
+    "market": false,
+    "conn_marks": 0
+  },
+  {
+    "id": "BURY",
+    "name": "伯里",
+    "slots": [
+      [
+        "cotton",
+        "coal"
+      ],
+      [
+        "cotton",
+        "coal"
+      ]
+    ],
+    "canal_adj": [
+      "BOLTON",
+      "MANCHESTER"
+    ],
+    "rail_adj": [
+      "BURNLEY",
+      "BOLTON",
+      "MANCHESTER",
+      "ROCHDALE"
+    ],
+    "rail_only": false,
+    "market": false,
+    "conn_marks": 0
+  },
+  {
+    "id": "COLNE",
+    "name": "科尔",
+    "slots": [
+      [
+        "cotton"
+      ],
+      [
+        "cotton"
+      ]
+    ],
+    "canal_adj": [
+      "BURNLEY",
+      "YORKSHIRE"
+    ],
+    "rail_adj": [
+      "BURNLEY",
+      "YORKSHIRE"
+    ],
+    "rail_only": false,
+    "market": false,
+    "conn_marks": 0
+  },
+  {
+    "id": "ROCHDALE",
+    "name": "罗奇代尔",
+    "slots": [
+      [
+        "cotton",
+        "coal"
+      ],
+      [
+        "cotton",
+        "coal"
+      ],
+      [
+        "iron"
+      ]
+    ],
+    "canal_adj": [
+      "YORKSHIRE",
+      "OLDHAM"
+    ],
+    "rail_adj": [
+      "YORKSHIRE",
+      "BURY",
+      "OLDHAM"
+    ],
+    "rail_only": false,
+    "market": false,
+    "conn_marks": 0
+  },
+  {
+    "id": "YORKSHIRE",
+    "name": "约克郡",
+    "slots": [],
+    "canal_adj": [
+      "COLNE",
+      "ROCHDALE"
+    ],
+    "rail_adj": [
+      "COLNE",
+      "ROCHDALE"
+    ],
+    "rail_only": false,
+    "market": true,
+    "conn_marks": 2
+  },
+  {
+    "id": "OLDHAM",
+    "name": "奥尔德姆",
+    "slots": [
+      [
+        "cotton",
+        "coal"
+      ],
+      [
+        "cotton",
+        "coal"
+      ]
+    ],
+    "canal_adj": [
+      "ROCHDALE",
+      "MANCHESTER"
+    ],
+    "rail_adj": [
+      "ROCHDALE",
+      "MANCHESTER"
+    ],
+    "rail_only": false,
+    "market": false,
+    "conn_marks": 0
+  },
+  {
+    "id": "WARRINGTONANDRUNCORN",
+    "name": "沃灵顿和润康",
+    "slots": [
+      [
+        "port"
+      ],
+      [
+        "cotton",
+        "coal"
+      ]
+    ],
+    "canal_adj": [
+      "WIGAN",
+      "MANCHESTER",
+      "ELLESMEREPORT"
+    ],
+    "rail_adj": [
+      "WIGAN",
+      "LIVERPOOL",
+      "MANCHESTER",
+      "ELLESMEREPORT"
+    ],
+    "rail_only": false,
+    "market": false,
+    "conn_marks": 0
+  }
+]

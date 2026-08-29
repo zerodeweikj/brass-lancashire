@@ -1,0 +1,19 @@
+{
+  "name": "lancashire-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "《工业革命·兰开夏》Phaser 前端",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "phaser": "^3.90.0",
+    "playwright": "^1.49.1"
+  },
+  "devDependencies": {
+    "vite": "^8.2.1"
+  }
+}

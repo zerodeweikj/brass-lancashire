@@ -1,0 +1,24 @@
+# Render Blueprint（基础设施即代码）
+# 用法：Render 控制台 → New + → Blueprint → 连接本仓库，会自动读取此文件创建服务。
+# 说明：后端同时托管 web/dist 前端（同源），因此无需 CORS、无需拆成静态站点。
+services:
+  - type: web
+    name: brass-lancashire
+    runtime: python
+    # 新加坡离国内最近，延迟相对最低
+    region: singapore
+    plan: free
+    # 以 server/ 作为工作目录：requirements.txt、run.py、app/ 都在这里
+    rootDir: server
+    buildCommand: pip install -r requirements.txt
+    # 直接用 uvicorn 启动（标准做法，避开 python/python3 命令差异）
+    # PORT 由 Render 注入，run.py 亦会自适应，此处显式指定更直观
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: BRASS_HOST
+        value: 0.0.0.0
+      - key: BRASS_LOG
+        value: info

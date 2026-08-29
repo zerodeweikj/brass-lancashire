@@ -1,0 +1,31 @@
+# Brass: Lancashire —— systemd 服务单元（uvicorn 免编译模式）
+# 用法：
+#   sudo cp deploy/brass.service /etc/systemd/system/brass.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now brass
+#
+# 阿里云香港 ECS：Alibaba Cloud Linux 3 默认用户 root；Ubuntu 默认 ubuntu。
+# 无域名方案：BRASS_HOST 监听本地回环，由 nginx(80) 反代；CORS 收紧到本机 IP。
+
+[Unit]
+Description=Brass Lancashire game server
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/brass/server
+Environment=BRASS_ROOT=/opt/brass
+Environment=BRASS_PORT=8765
+Environment=BRASS_HOST=127.0.0.1
+# 无域名：用 IP 收紧 CORS（防止他人白嫖 API）
+Environment=CORS_ORIGINS=http://47.76.136.173
+
+# uvicorn 模式（免编译，省内存，推荐 2GiB 档）
+ExecStart=/opt/brass/venv/bin/python /opt/brass/server/run.py
+
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

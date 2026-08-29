@@ -1,0 +1,440 @@
+{
+  "map": "main_map.jpg",
+  "template": "link_template.jpg",
+  "slotWidth": 20,
+  "slotHeight": 94,
+  "links": [
+    {
+      "id": "MANCHESTER-STOCKPORT",
+      "cities": [
+        "MANCHESTER",
+        "STOCKPORT"
+      ],
+      "x": 1467,
+      "y": 1411,
+      "angle": -39.35,
+      "era": "both",
+      "conf": 0.613
+    },
+    {
+      "id": "MANCHESTER-OLDHAM",
+      "cities": [
+        "MANCHESTER",
+        "OLDHAM"
+      ],
+      "x": 1597,
+      "y": 1327,
+      "angle": 63.56,
+      "era": "both",
+      "conf": 0.429
+    },
+    {
+      "id": "BURY-MANCHESTER",
+      "cities": [
+        "BURY",
+        "MANCHESTER"
+      ],
+      "x": 1441,
+      "y": 1086,
+      "angle": 8.5,
+      "era": "both",
+      "conf": 0.549
+    },
+    {
+      "id": "BOLTON-MANCHESTER",
+      "cities": [
+        "BOLTON",
+        "MANCHESTER"
+      ],
+      "x": 1293,
+      "y": 1121,
+      "angle": -49.91,
+      "era": "both",
+      "conf": 0.54
+    },
+    {
+      "id": "MANCHESTER-WARRINGTONANDRUNCORN",
+      "cities": [
+        "MANCHESTER",
+        "WARRINGTONANDRUNCORN"
+      ],
+      "x": 1272,
+      "y": 1283,
+      "angle": 64.04,
+      "era": "both",
+      "conf": 0.515
+    },
+    {
+      "id": "NORTHWICH-THEMIDLANDS",
+      "cities": [
+        "NORTHWICH",
+        "THEMIDLANDS"
+      ],
+      "x": 1164,
+      "y": 1642,
+      "angle": -10.0,
+      "era": "both",
+      "conf": 0.624
+    },
+    {
+      "id": "MACCLESFIELD-THEMIDLANDS",
+      "cities": [
+        "MACCLESFIELD",
+        "THEMIDLANDS"
+      ],
+      "x": 1272,
+      "y": 1712,
+      "angle": 58.02,
+      "era": "both",
+      "conf": 0.667
+    },
+    {
+      "id": "ELLESMEREPORT-NORTHWICH",
+      "cities": [
+        "ELLESMEREPORT",
+        "NORTHWICH"
+      ],
+      "x": 1036,
+      "y": 1485,
+      "angle": -83.94,
+      "era": "both",
+      "conf": 0.686
+    },
+    {
+      "id": "ELLESMEREPORT-LIVERPOOL",
+      "cities": [
+        "ELLESMEREPORT",
+        "LIVERPOOL"
+      ],
+      "x": 800,
+      "y": 1372,
+      "angle": -32.57,
+      "era": "canal",
+      "conf": 0.688
+    },
+    {
+      "id": "ELLESMEREPORT-WARRINGTONANDRUNCORN",
+      "cities": [
+        "ELLESMEREPORT",
+        "WARRINGTONANDRUNCORN"
+      ],
+      "x": 924,
+      "y": 1364,
+      "angle": 36.17,
+      "era": "both",
+      "conf": 0.6
+    },
+    {
+      "id": "BIRKENHEAD-ELLESMEREPORT",
+      "cities": [
+        "BIRKENHEAD",
+        "ELLESMEREPORT"
+      ],
+      "x": 720,
+      "y": 1426,
+      "angle": -72.98,
+      "era": "rail",
+      "conf": 0.514
+    },
+    {
+      "id": "MACCLESFIELD-STOCKPORT",
+      "cities": [
+        "MACCLESFIELD",
+        "STOCKPORT"
+      ],
+      "x": 1622,
+      "y": 1630,
+      "angle": 27.88,
+      "era": "both",
+      "conf": 0.505
+    },
+    {
+      "id": "LIVERPOOL-SOUTHPORT",
+      "cities": [
+        "LIVERPOOL",
+        "SOUTHPORT"
+      ],
+      "x": 733,
+      "y": 1030,
+      "angle": 3.41,
+      "era": "rail",
+      "conf": 0.537
+    },
+    {
+      "id": "LIVERPOOL-WIGAN",
+      "cities": [
+        "LIVERPOOL",
+        "WIGAN"
+      ],
+      "x": 857,
+      "y": 1084,
+      "angle": 34.81,
+      "era": "both",
+      "conf": 0.655
+    },
+    {
+      "id": "LIVERPOOL-WARRINGTONANDRUNCORN",
+      "cities": [
+        "LIVERPOOL",
+        "WARRINGTONANDRUNCORN"
+      ],
+      "x": 924,
+      "y": 1229,
+      "angle": -79.47,
+      "era": "rail",
+      "conf": 0.393
+    },
+    {
+      "id": "WARRINGTONANDRUNCORN-WIGAN",
+      "cities": [
+        "WARRINGTONANDRUNCORN",
+        "WIGAN"
+      ],
+      "x": 1019,
+      "y": 1183,
+      "angle": -30.71,
+      "era": "both",
+      "conf": 0.592
+    },
+    {
+      "id": "SOUTHPORT-WIGAN",
+      "cities": [
+        "SOUTHPORT",
+        "WIGAN"
+      ],
+      "x": 852,
+      "y": 930,
+      "angle": 88.45,
+      "era": "rail",
+      "conf": 0.399
+    },
+    {
+      "id": "PRESTON-SOUTHPORT",
+      "cities": [
+        "PRESTON",
+        "SOUTHPORT"
+      ],
+      "x": 836,
+      "y": 816,
+      "angle": 41.87,
+      "era": "rail",
+      "conf": 0.423
+    },
+    {
+      "id": "BLACKPOOL-PRESTON",
+      "cities": [
+        "BLACKPOOL",
+        "PRESTON"
+      ],
+      "x": 815,
+      "y": 684,
+      "angle": 72.37,
+      "era": "rail",
+      "conf": 0.338
+    },
+    {
+      "id": "FLEETWOOD-PRESTON",
+      "cities": [
+        "FLEETWOOD",
+        "PRESTON"
+      ],
+      "x": 828,
+      "y": 573,
+      "angle": -73.25,
+      "era": "both",
+      "conf": 0.591
+    },
+    {
+      "id": "LANCASTER-PRESTON",
+      "cities": [
+        "LANCASTER",
+        "PRESTON"
+      ],
+      "x": 946,
+      "y": 512,
+      "angle": 3.23,
+      "era": "both",
+      "conf": 0.857
+    },
+    {
+      "id": "BLACKBURN-PRESTON",
+      "cities": [
+        "BLACKBURN",
+        "PRESTON"
+      ],
+      "x": 1141,
+      "y": 699,
+      "angle": -73.35,
+      "era": "rail",
+      "conf": 0.367
+    },
+    {
+      "id": "PRESTON-WIGAN",
+      "cities": [
+        "PRESTON",
+        "WIGAN"
+      ],
+      "x": 988,
+      "y": 868,
+      "angle": -10.18,
+      "era": "both",
+      "conf": 0.58
+    },
+    {
+      "id": "BARROW-IN-FURNESS-LANCASTER",
+      "cities": [
+        "BARROW-IN-FURNESS",
+        "LANCASTER"
+      ],
+      "x": 802,
+      "y": 251,
+      "angle": -78.76,
+      "era": "rail",
+      "conf": 0.402
+    },
+    {
+      "id": "LANCASTER-SCOTLAND",
+      "cities": [
+        "LANCASTER",
+        "SCOTLAND"
+      ],
+      "x": 974,
+      "y": 256,
+      "angle": -4.51,
+      "era": "rail",
+      "conf": 0.372
+    },
+    {
+      "id": "BLACKBURN-BOLTON",
+      "cities": [
+        "BLACKBURN",
+        "BOLTON"
+      ],
+      "x": 1217,
+      "y": 918,
+      "angle": -5.74,
+      "era": "rail",
+      "conf": 0.362
+    },
+    {
+      "id": "BLACKBURN-BURNLEY",
+      "cities": [
+        "BLACKBURN",
+        "BURNLEY"
+      ],
+      "x": 1329,
+      "y": 609,
+      "angle": 55.66,
+      "era": "both",
+      "conf": 0.47
+    },
+    {
+      "id": "BLACKBURN-WIGAN",
+      "cities": [
+        "BLACKBURN",
+        "WIGAN"
+      ],
+      "x": 1111,
+      "y": 921,
+      "angle": 47.34,
+      "era": "both",
+      "conf": 0.59
+    },
+    {
+      "id": "BOLTON-WIGAN",
+      "cities": [
+        "BOLTON",
+        "WIGAN"
+      ],
+      "x": 1089,
+      "y": 1079,
+      "angle": -89.86,
+      "era": "rail",
+      "conf": 0.369
+    },
+    {
+      "id": "BOLTON-BURY",
+      "cities": [
+        "BOLTON",
+        "BURY"
+      ],
+      "x": 1328,
+      "y": 936,
+      "angle": 61.96,
+      "era": "both",
+      "conf": 0.52
+    },
+    {
+      "id": "BURNLEY-COLNE",
+      "cities": [
+        "BURNLEY",
+        "COLNE"
+      ],
+      "x": 1557,
+      "y": 596,
+      "angle": 68.15,
+      "era": "both",
+      "conf": 0.436
+    },
+    {
+      "id": "BURNLEY-BURY",
+      "cities": [
+        "BURNLEY",
+        "BURY"
+      ],
+      "x": 1472,
+      "y": 786,
+      "angle": -5.11,
+      "era": "rail",
+      "conf": 0.454
+    },
+    {
+      "id": "BURY-ROCHDALE",
+      "cities": [
+        "BURY",
+        "ROCHDALE"
+      ],
+      "x": 1537,
+      "y": 908,
+      "angle": -88.62,
+      "era": "rail",
+      "conf": 0.384
+    },
+    {
+      "id": "COLNE-YORKSHIRE",
+      "cities": [
+        "COLNE",
+        "YORKSHIRE"
+      ],
+      "x": 1757,
+      "y": 584,
+      "angle": -50.94,
+      "era": "both",
+      "conf": 0.495
+    },
+    {
+      "id": "ROCHDALE-YORKSHIRE",
+      "cities": [
+        "ROCHDALE",
+        "YORKSHIRE"
+      ],
+      "x": 1801,
+      "y": 854,
+      "angle": -7.38,
+      "era": "both",
+      "conf": 0.52
+    },
+    {
+      "id": "OLDHAM-ROCHDALE",
+      "cities": [
+        "OLDHAM",
+        "ROCHDALE"
+      ],
+      "x": 1724,
+      "y": 1088,
+      "angle": -2.99,
+      "era": "both",
+      "conf": 0.517
+    }
+  ]
+}

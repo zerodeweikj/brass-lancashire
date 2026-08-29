@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lancashire.local/schema/action.schema.json",
+  "title": "《工业革命·兰开夏》行动请求数据模型",
+  "description": "玩家提交行动的请求体（POST /game/{roomId}/action）。version 必填防竞态；playerId 由服务端会话校验。",
+  "$defs": {
+    "buildAction": {
+      "type": "object",
+      "description": "建造工业板块（含建造煤厂）。双牌建造时 doubleCards 携带 2 张手牌。",
+      "properties": {
+        "action": { "const": "build" },
+        "version": { "type": "integer", "minimum": 0 },
+        "cityCardId": { "type": "string", "description": "城市牌 ID（须在玩家手牌中且匹配 location）" },
+        "industryCardId": { "type": "string", "description": "产业牌 ID（铁厂/煤厂/造船厂/港口/棉花厂）" },
+        "location": { "type": "string", "description": "建造地点 ID" },
+        "slotIndex": { "type": "integer", "minimum": 0, "description": "槽位序号" },
+        "coalSource": {
+          "type": ["string", "null"],
+          "description": "煤源实例 ID（当建造需煤时，玩家选定的煤厂实例；等距多个时手动选，null 表示从市场买）"
+        },
+        "toMarket": { "type": "boolean", "description": "产出的煤/铁是否放入市场空缺换钱" },
+        "doubleCards": {
+          "type": ["array", "null"],
+          "items": { "type": "string" },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "双牌建造时的 2 张手牌 ID"
+        }
+      },
+      "required": ["action", "version", "cityCardId", "industryCardId", "location", "slotIndex"],
+      "additionalProperties": false
+    },
+    "roadAction": {
+      "type": "object",
+      "properties": {
+        "action": { "const": "road" },
+        "version": { "type": "integer", "minimum": 0 },
+        "handCardId": { "type": "string" },
+        "linkType": { "type": "string", "enum": ["canal", "rail"], "description": "运河时代仅 canal；铁路时代 rail 或（未来扩展 canal）" },
+        "double": { "type": "boolean", "description": "铁路时代铁路×2（+15钱+2煤，两条不强制相邻）" },
+        "links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "a": { "type": "string" },
+              "b": { "type": "string" }
+            },
+            "required": ["a", "b"],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 2,
+          "description": "连接起止点（×2 时两条）"
+        },
+        "coalSource": { "type": ["string", "null"] }
+      },
+      "required": ["action", "version", "handCardId", "linkType", "links"],
+      "additionalProperties": false
+    },
+    "developAction": {
+      "type": "object",
+      "properties": {
+        "action": { "const": "develop" },
+        "version": { "type": "integer", "minimum": 0 },
+        "handCardId": { "type": "string" },
+        "industry": { "type": "string", "enum": ["铁厂", "煤厂", "造船厂", "港口", "棉花厂"] },
+        "ironCount": { "type": "integer", "minimum": 1, "maximum": 2, "description": "消耗铁数（≤min(2, 面板产业板块数)）" }
+      },
+      "required": ["action", "version", "handCardId", "industry", "ironCount"],
+      "additionalProperties": false
+    },
+    "sellAction": {
+      "type": "object",
+      "properties": {
+        "action": { "const": "sell" },
+        "version": { "type": "integer", "minimum": 0 },
+        "handCardId": { "type": "string" },
+        "millTileId": { "type": "string", "description": "要出售的未翻面棉花厂实例 ID" },
+        "reward": { "type": "string", "enum": ["money", "remote_market"], "description": "金钱或抽远方市场牌" }
+      },
+      "required": ["action", "version", "handCardId", "millTileId", "reward"],
+      "additionalProperties": false
+    },
+    "loanAction": {
+      "type": "object",
+      "properties": {
+        "action": { "const": "loan" },
+        "version": { "type": "integer", "minimum": 0 },
+        "handCardId": { "type": "string" },
+        "tier": { "type": "integer", "minimum": 1, "maximum": 3, "description": "1=+10钱退1格 / 2=+20钱退2格 / 3=+30钱退3格" }
+      },
+      "required": ["action", "version", "handCardId", "tier"],
+      "additionalProperties": false
+    },
+    "skipAction": {
+      "type": "object",
+      "properties": {
+        "action": { "const": "skip" },
+        "version": { "type": "integer", "minimum": 0 },
+        "handCardId": { "type": "string", "description": "主动跳过时玩家自选手牌；超时自动跳时为 null（服务器随机抽）" }
+      },
+      "required": ["action", "version"],
+      "additionalProperties": false
+    },
+    "undoAction": {
+      "type": "object",
+      "properties": {
+        "action": { "const": "undo" },
+        "version": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["action", "version"],
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    { "$ref": "#/$defs/buildAction" },
+    { "$ref": "#/$defs/roadAction" },
+    { "$ref": "#/$defs/developAction" },
+    { "$ref": "#/$defs/sellAction" },
+    { "$ref": "#/$defs/loanAction" },
+    { "$ref": "#/$defs/skipAction" },
+    { "$ref": "#/$defs/undoAction" }
+  ]
+}

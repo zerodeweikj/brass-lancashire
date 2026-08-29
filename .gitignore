@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Node
+node_modules/
+dist/
+# 例外：web/dist 是已构建的前端产物，必须入库。
+# Render 从 GitHub 拉取代码后直接托管，不会在云端跑 npm build；
+# 若把它忽略掉，部署出来的后端就没有前端可挂载（页面空白）。
+!web/dist/
+!web/dist/**
+*.local
+
+# SQLite
+*.db
+*.db-journal
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# 项目记忆与本地文档不纳入代码仓库
+.workbuddy/
+*.docx
+*.xlsx
+
+# 槽位检测脚本的产物（每次运行可重生成，且含大图）
+out/
+backup/
+slot_detect_report.json
+

@@ -1,0 +1,762 @@
+{
+ "map": "main_map.jpg",
+ "locations": {
+  "MANCHESTER": {
+   "slots": [
+    {
+     "types": [
+      "cotton",
+      "coal"
+     ],
+     "x": 1365,
+     "y": 1187
+    },
+    {
+     "types": [
+      "cotton",
+      "coal"
+     ],
+     "x": 1448,
+     "y": 1187
+    },
+    {
+     "types": [
+      "cotton",
+      "coal"
+     ],
+     "x": 1364,
+     "y": 1279
+    },
+    {
+     "types": [
+      "iron"
+     ],
+     "x": 1451,
+     "y": 1279
+    }
+   ]
+  },
+  "THEMIDLANDS": {
+   "point": [
+    1146,
+    1784
+   ]
+  },
+  "NORTHWICH": {
+   "point": [
+    1146,
+    1546
+   ]
+  },
+  "MACCLESFIELD": {
+   "slots": [
+    {
+     "types": [
+      "cotton"
+     ],
+     "x": 1392,
+     "y": 1661
+    },
+    {
+     "types": [
+      "cotton"
+     ],
+     "x": 1479,
+     "y": 1661
+    }
+   ]
+  },
+  "ELLESMEREPORT": {
+   "slots": [
+    {
+     "types": [
+      "port"
+     ],
+     "x": 869,
+     "y": 1461
+    }
+   ]
+  },
+  "STOCKPORT": {
+   "slots": [
+    {
+     "types": [
+      "cotton"
+     ],
+     "x": 1543,
+     "y": 1505
+    },
+    {
+     "types": [
+      "cotton"
+     ],
+     "x": 1630,
+     "y": 1505
+    }
+   ]
+  },
+  "BIRKENHEAD": {
+   "slots": [
+    {
+     "types": [
+      "shipyard"
+     ],
+     "x": 557,
+     "y": 1295
+    }
+   ]
+  },
+  "LIVERPOOL": {
+   "slots": [
+    {
+     "types": [
+      "port"
+     ],
+     "x": 685,
+     "y": 1135
+    },
+    {
+     "types": [
+      "port"
+     ],
+     "x": 772,
+     "y": 1135
+    },
+    {
+     "types": [
+      "port"
+     ],
+     "x": 772,
+     "y": 1224
+    },
+    {
+     "types": [
+      "shipyard"
+     ],
+     "x": 685,
+     "y": 1221
+    }
+   ]
+  },
+  "SOUTHPORT": {
+   "point": [
+    721,
+    927
+   ]
+  },
+  "PRESTON": {
+   "slots": [
+    {
+     "types": [
+      "cotton",
+      "port"
+     ],
+     "x": 926,
+     "y": 638
+    },
+    {
+     "types": [
+      "iron"
+     ],
+     "x": 1013,
+     "y": 638
+    },
+    {
+     "types": [
+      "port"
+     ],
+     "x": 970,
+     "y": 727
+    }
+   ]
+  },
+  "BLACKPOOL": {
+   "point": [
+    703,
+    758
+   ]
+  },
+  "FLEETWOOD": {
+   "slots": [
+    {
+     "types": [
+      "port"
+     ],
+     "x": 728,
+     "y": 546
+    }
+   ]
+  },
+  "LANCASTER": {
+   "slots": [
+    {
+     "types": [
+      "port"
+     ],
+     "x": 925,
+     "y": 369
+    },
+    {
+     "types": [
+      "cotton",
+      "port"
+     ],
+     "x": 1007,
+     "y": 369
+    }
+   ]
+  },
+  "BLACKBURN": {
+   "slots": [
+    {
+     "types": [
+      "cotton",
+      "coal"
+     ],
+     "x": 1232,
+     "y": 710
+    },
+    {
+     "types": [
+      "cotton",
+      "coal"
+     ],
+     "x": 1190,
+     "y": 805
+    },
+    {
+     "types": [
+      "iron"
+     ],
+     "x": 1274,
+     "y": 802
+    }
+   ]
+  },
+  "BARROW-IN-FURNESS": {
+   "slots": [
+    {
+     "types": [
+      "shipyard"
+     ],
+     "x": 558,
+     "y": 225
+    },
+    {
+     "types": [
+      "iron"
+     ],
+     "x": 639,
+     "y": 226
+    }
+   ]
+  },
+  "SCOTLAND": {
+   "point": [
+    947,
+    128
+   ]
+  },
+  "BOLTON": {
+   "slots": [
+    {
+     "types": [
+      "cotton",
+      "coal"
+     ],
+     "x": 1144,
+     "y": 1011
+    },
+    {
+     "types": [
+      "cotton",
+      "coal"
+     ],
+     "x": 1231,
+     "y": 1011
+    },
+    {
+     "types": [
+      "iron"
+     ],
+     "x": 1188,
+     "y": 1103
+    }
+   ]
+  },
+  "BURNLEY": {
+   "slots": [
+    {
+     "types": [
+      "cotton",
+      "coal"
+     ],
+     "x": 1441,
+     "y": 573
+    },
+    {
+     "types": [
+      "cotton",
+      "coal"
+     ],
+     "x": 1440,
+     "y": 665
+    }
+   ]
+  },
+  "WIGAN": {
+   "slots": [
+    {
+     "types": [
+      "coal"
+     ],
+     "x": 965,
+     "y": 973
+    },
+    {
+     "types": [
+      "coal"
+     ],
+     "x": 965,
+     "y": 1064
+    }
+   ]
+  },
+  "BURY": {
+   "slots": [
+    {
+     "types": [
+      "cotton",
+      "coal"
+     ],
+     "x": 1435,
+     "y": 898
+    },
+    {
+     "types": [
+      "cotton",
+      "coal"
+     ],
+     "x": 1435,
+     "y": 987
+    }
+   ]
+  },
+  "COLNE": {
+   "slots": [
+    {
+     "types": [
+      "cotton"
+     ],
+     "x": 1654,
+     "y": 541
+    },
+    {
+     "types": [
+      "cotton"
+     ],
+     "x": 1650,
+     "y": 632
+    }
+   ]
+  },
+  "ROCHDALE": {
+   "slots": [
+    {
+     "types": [
+      "cotton",
+      "coal"
+     ],
+     "x": 1703,
+     "y": 866
+    },
+    {
+     "types": [
+      "cotton",
+      "coal"
+     ],
+     "x": 1661,
+     "y": 954
+    },
+    {
+     "types": [
+      "iron"
+     ],
+     "x": 1748,
+     "y": 954
+    }
+   ]
+  },
+  "YORKSHIRE": {
+   "point": [
+    1767,
+    714
+   ]
+  },
+  "OLDHAM": {
+   "slots": [
+    {
+     "types": [
+      "cotton",
+      "coal"
+     ],
+     "x": 1646,
+     "y": 1191
+    },
+    {
+     "types": [
+      "cotton",
+      "coal"
+     ],
+     "x": 1733,
+     "y": 1191
+    }
+   ]
+  },
+  "WARRINGTONANDRUNCORN": {
+   "slots": [
+    {
+     "types": [
+      "port"
+     ],
+     "x": 1049,
+     "y": 1294
+    },
+    {
+     "types": [
+      "cotton",
+      "coal"
+     ],
+     "x": 1136,
+     "y": 1294
+    }
+   ]
+  }
+ },
+ "points": {
+  "MANCHESTER": [
+   1407,
+   1233
+  ],
+  "THEMIDLANDS": [
+   1146,
+   1784
+  ],
+  "NORTHWICH": [
+   1146,
+   1546
+  ],
+  "MACCLESFIELD": [
+   1436,
+   1661
+  ],
+  "ELLESMEREPORT": [
+   869,
+   1461
+  ],
+  "STOCKPORT": [
+   1586,
+   1505
+  ],
+  "BIRKENHEAD": [
+   557,
+   1295
+  ],
+  "LIVERPOOL": [
+   728,
+   1179
+  ],
+  "SOUTHPORT": [
+   721,
+   927
+  ],
+  "PRESTON": [
+   970,
+   668
+  ],
+  "BLACKPOOL": [
+   703,
+   758
+  ],
+  "FLEETWOOD": [
+   728,
+   546
+  ],
+  "LANCASTER": [
+   966,
+   369
+  ],
+  "BLACKBURN": [
+   1232,
+   772
+  ],
+  "BARROW-IN-FURNESS": [
+   598,
+   226
+  ],
+  "SCOTLAND": [
+   947,
+   128
+  ],
+  "BOLTON": [
+   1188,
+   1042
+  ],
+  "BURNLEY": [
+   1440,
+   619
+  ],
+  "WIGAN": [
+   965,
+   1018
+  ],
+  "BURY": [
+   1435,
+   942
+  ],
+  "COLNE": [
+   1652,
+   586
+  ],
+  "ROCHDALE": [
+   1704,
+   925
+  ],
+  "YORKSHIRE": [
+   1767,
+   714
+  ],
+  "OLDHAM": [
+   1690,
+   1191
+  ],
+  "WARRINGTONANDRUNCORN": [
+   1092,
+   1294
+  ]
+ },
+ "regions": {
+  "foreign_market_track": {
+   "kind": "track",
+   "name_zh": "远方的棉花市场轨",
+   "positions": [
+    [
+     235,
+     1096
+    ],
+    [
+     279,
+     1096
+    ],
+    [
+     280,
+     1165
+    ],
+    [
+     236,
+     1166
+    ],
+    [
+     236,
+     1236
+    ],
+    [
+     280,
+     1235
+    ],
+    [
+     280,
+     1307
+    ],
+    [
+     237,
+     1307
+    ],
+    [
+     260,
+     1370
+    ]
+   ],
+   "values": [
+    3,
+    3,
+    2,
+    2,
+    1,
+    1,
+    0,
+    0,
+    0
+   ],
+   "end_index": 8,
+   "note": "蛇形单向轨：3行左起点→右→2行右→左→1行左→右→0行右→左→X。移动只进不退；运河阶段结束、铁路阶段开始前重置回起点(positions[0])。"
+  },
+  "turn_order_track": {
+   "kind": "marker_track",
+   "name_zh": "回合顺位轨",
+   "positions": [
+    [
+     198,
+     1730
+    ],
+    [
+     395,
+     1730
+    ],
+    [
+     590,
+     1730
+    ],
+    [
+     789,
+     1730
+    ]
+   ],
+   "slot_image": "assets/markers/turn_order_slot.jpg",
+   "note": "回合顺位轨 4 槽位（从左到右=顺位1~4）；按 player_order 顺序放玩家颜色标记/头像（图片只在槽位尺寸范围内显示，圆形裁剪）；当前行动者(player_order[current_idx])的标记加发光高亮。初始顺序游戏开始时随机；每小轮结束按本轮支付金钱升序稳定重排。"
+  },
+  "coal_market": {
+   "kind": "market",
+   "resource": "coal",
+   "color": 2829099,
+   "name_zh": "煤市场",
+   "positions": {
+    "4": [
+     [
+      1508,
+      189
+     ],
+     [
+      1548,
+      190
+     ]
+    ],
+    "3": [
+     [
+      1507,
+      247
+     ],
+     [
+      1549,
+      247
+     ]
+    ],
+    "2": [
+     [
+      1507,
+      305
+     ],
+     [
+      1548,
+      304
+     ]
+    ],
+    "1": [
+     [
+      1507,
+      363
+     ],
+     [
+      1549,
+      363
+     ]
+    ]
+   },
+   "note": "煤市场：5价无限库存不映射格；4/3/2/1 每价2单位商品格（黑色方块）。购买从低往高；建造产煤板块可选放市场空缺换钱（需连市场标记）。"
+  },
+  "iron_market": {
+   "kind": "market",
+   "resource": "iron",
+   "color": 16752448,
+   "name_zh": "铁市场",
+   "positions": {
+    "4": [
+     [
+      1611,
+      190
+     ],
+     [
+      1651,
+      191
+     ]
+    ],
+    "3": [
+     [
+      1610,
+      248
+     ],
+     [
+      1652,
+      248
+     ]
+    ],
+    "2": [
+     [
+      1610,
+      306
+     ],
+     [
+      1651,
+      305
+     ]
+    ],
+    "1": [
+     [
+      1610,
+      364
+     ],
+     [
+      1652,
+      364
+     ]
+    ]
+   },
+   "note": "铁市场：与煤同构，由煤坐标 + 平移(103,1) 推导（用户给铁4价左(1611,190)校准）。橙色方块。"
+  },
+  "hand_deck": {
+   "kind": "rect_image",
+   "name_zh": "手牌抽牌库",
+   "center": [
+    249,
+    285
+   ],
+   "size": [
+    215,
+    300
+   ],
+   "angle": 0,
+   "image": "assets/markers/hand_card_back.jpg",
+   "note": "长方形槽位（方案A：中心点+宽高+角度）。用户实测左上(141,135)右下(356,435)→center=(249,285)、size=(215,300)、正放。手牌尺寸 218×300；现挂手牌背面图。弃牌堆在版图外左侧与其平行（暂未映射）。"
+  },
+  "foreign_market_deck": {
+   "kind": "rect_image",
+   "name_zh": "远方市场牌库",
+   "center": [
+    249,
+    613.5
+   ],
+   "size": [
+    198,
+    243
+   ],
+   "angle": 0,
+   "image": "assets/markers/remote_market_card_back.png",
+   "note": "远方市场牌库（面朝下抽牌堆）。用户给角点左上(150,492)右下(348,735)→center=(249,613.5)、size=(198,243)。长方形映射（对象本质菱形，按包围盒当长方形）；左边缘150、宽198。"
+  },
+  "foreign_market_discard": {
+   "kind": "rect",
+   "name_zh": "远方市场弃牌堆",
+   "center": [
+    249,
+    867
+   ],
+   "size": [
+    198,
+    244
+   ],
+   "angle": 0,
+   "frame": false,
+   "note": "远方市场弃牌堆（抽出的牌正面朝上摊放/计数于此，无静态图）。用户给角点左上(150,745)右下(348,989)→center=(249,867)、size=(198,244)。长方形映射；与牌库同x(249)垂直堆叠、左边缘对齐(150)。玩家在此模块唯一允许互动的元素。frame=false：不渲染白边占位框，玩家只会看到地图，被抽出的牌正面动态叠放时才可见。"
+  }
+ }
+}

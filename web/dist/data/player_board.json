@@ -1,0 +1,126 @@
+{
+  "slotSize": 86,
+  "background": "assets/player_board.jpg",
+  "size": {
+    "width": 1417,
+    "height": 960
+  },
+  "note": "玩家个人面板上的产业板块槽位；坐标为玩家面板底图自身像素空间（与游戏主地图 1936x1936 无关）。个人面板上的产业板块永远不翻面，翻面仅发生在游戏主图版已建建筑上。面板底图尺寸 1417x960。",
+  "slots": [
+    {
+      "slot_id": "pb_cotton_1",
+      "tile_id": "cotton_1",
+      "x": 158,
+      "y": 741
+    },
+    {
+      "slot_id": "pb_cotton_2",
+      "tile_id": "cotton_2",
+      "x": 158,
+      "y": 566
+    },
+    {
+      "slot_id": "pb_cotton_3",
+      "tile_id": "cotton_3",
+      "x": 158,
+      "y": 397
+    },
+    {
+      "slot_id": "pb_cotton_4",
+      "tile_id": "cotton_4",
+      "x": 158,
+      "y": 220
+    },
+    {
+      "slot_id": "pb_port_1",
+      "tile_id": "port_1",
+      "x": 430,
+      "y": 741
+    },
+    {
+      "slot_id": "pb_port_2",
+      "tile_id": "port_2",
+      "x": 430,
+      "y": 566
+    },
+    {
+      "slot_id": "pb_port_3",
+      "tile_id": "port_3",
+      "x": 430,
+      "y": 397
+    },
+    {
+      "slot_id": "pb_port_4",
+      "tile_id": "port_4",
+      "x": 430,
+      "y": 220
+    },
+    {
+      "slot_id": "pb_shipyard_0",
+      "tile_id": "shipyard_0",
+      "x": 709,
+      "y": 741,
+      "placeholder": true
+    },
+    {
+      "slot_id": "pb_shipyard_1",
+      "tile_id": "shipyard_1",
+      "x": 709,
+      "y": 566
+    },
+    {
+      "slot_id": "pb_shipyard_2",
+      "tile_id": "shipyard_2",
+      "x": 709,
+      "y": 397
+    },
+    {
+      "slot_id": "pb_ironworks_1",
+      "tile_id": "ironworks_1",
+      "x": 982,
+      "y": 741
+    },
+    {
+      "slot_id": "pb_ironworks_2",
+      "tile_id": "ironworks_2",
+      "x": 982,
+      "y": 566
+    },
+    {
+      "slot_id": "pb_ironworks_3",
+      "tile_id": "ironworks_3",
+      "x": 982,
+      "y": 397
+    },
+    {
+      "slot_id": "pb_ironworks_4",
+      "tile_id": "ironworks_4",
+      "x": 982,
+      "y": 220
+    },
+    {
+      "slot_id": "pb_colliery_1",
+      "tile_id": "colliery_1",
+      "x": 1256,
+      "y": 741
+    },
+    {
+      "slot_id": "pb_colliery_2",
+      "tile_id": "colliery_2",
+      "x": 1256,
+      "y": 566
+    },
+    {
+      "slot_id": "pb_colliery_3",
+      "tile_id": "colliery_3",
+      "x": 1256,
+      "y": 397
+    },
+    {
+      "slot_id": "pb_colliery_4",
+      "tile_id": "colliery_4",
+      "x": 1256,
+      "y": 220
+    }
+  ]
+}

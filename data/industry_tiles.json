@@ -1,0 +1,430 @@
+[
+  {
+    "industry": "铁厂",
+    "tile_id": "ironworks_0",
+    "level": 0,
+    "building_id": "building_001",
+    "era": "—",
+    "cost": {},
+    "produce": null,
+    "flip": "—",
+    "flip_income": null,
+    "vp": null,
+    "per_player": null,
+    "note": "无此工业板块"
+  },
+  {
+    "industry": "铁厂",
+    "tile_id": "ironworks_1",
+    "level": 1,
+    "building_id": "building_001",
+    "era": "canal_only",
+    "cost": {
+      "money": 5,
+      "coal": 1
+    },
+    "produce": {
+      "type": "iron",
+      "qty": 4
+    },
+    "flip": "iron_depleted",
+    "flip_income": 3,
+    "vp": 3,
+    "per_player": 1,
+    "note": null
+  },
+  {
+    "industry": "铁厂",
+    "tile_id": "ironworks_2",
+    "level": 2,
+    "building_id": "building_001",
+    "era": "any",
+    "cost": {
+      "money": 7,
+      "coal": 1
+    },
+    "produce": {
+      "type": "iron",
+      "qty": 4
+    },
+    "flip": "iron_depleted",
+    "flip_income": 3,
+    "vp": 5,
+    "per_player": 1,
+    "note": null
+  },
+  {
+    "industry": "铁厂",
+    "tile_id": "ironworks_3",
+    "level": 3,
+    "building_id": "building_001",
+    "era": "any",
+    "cost": {
+      "money": 9,
+      "coal": 1
+    },
+    "produce": {
+      "type": "iron",
+      "qty": 5
+    },
+    "flip": "iron_depleted",
+    "flip_income": 2,
+    "vp": 7,
+    "per_player": 1,
+    "note": null
+  },
+  {
+    "industry": "铁厂",
+    "tile_id": "ironworks_4",
+    "level": 4,
+    "building_id": "building_001",
+    "era": "any",
+    "cost": {
+      "money": 12,
+      "coal": 1
+    },
+    "produce": {
+      "type": "iron",
+      "qty": 6
+    },
+    "flip": "iron_depleted",
+    "flip_income": 1,
+    "vp": 9,
+    "per_player": 1,
+    "note": null
+  },
+  {
+    "industry": "煤厂",
+    "tile_id": "colliery_0",
+    "level": 0,
+    "building_id": "building_002",
+    "era": "—",
+    "cost": {},
+    "produce": null,
+    "flip": "—",
+    "flip_income": null,
+    "vp": null,
+    "per_player": null,
+    "note": "无此工业板块"
+  },
+  {
+    "industry": "煤厂",
+    "tile_id": "colliery_1",
+    "level": 1,
+    "building_id": "building_002",
+    "era": "canal_only",
+    "cost": {
+      "money": 5
+    },
+    "produce": {
+      "type": "coal",
+      "qty": 2
+    },
+    "flip": "coal_depleted",
+    "flip_income": 4,
+    "vp": 1,
+    "per_player": 1,
+    "note": null
+  },
+  {
+    "industry": "煤厂",
+    "tile_id": "colliery_2",
+    "level": 2,
+    "building_id": "building_002",
+    "era": "any",
+    "cost": {
+      "money": 7
+    },
+    "produce": {
+      "type": "coal",
+      "qty": 3
+    },
+    "flip": "coal_depleted",
+    "flip_income": 7,
+    "vp": 2,
+    "per_player": 2,
+    "note": null
+  },
+  {
+    "industry": "煤厂",
+    "tile_id": "colliery_3",
+    "level": 3,
+    "building_id": "building_002",
+    "era": "any",
+    "cost": {
+      "money": 8,
+      "iron": 1
+    },
+    "produce": {
+      "type": "coal",
+      "qty": 4
+    },
+    "flip": "coal_depleted",
+    "flip_income": 6,
+    "vp": 3,
+    "per_player": 2,
+    "note": null
+  },
+  {
+    "industry": "煤厂",
+    "tile_id": "colliery_4",
+    "level": 4,
+    "building_id": "building_002",
+    "era": "any",
+    "cost": {
+      "money": 10,
+      "iron": 1
+    },
+    "produce": {
+      "type": "coal",
+      "qty": 5
+    },
+    "flip": "resource_depleted",
+    "flip_income": 5,
+    "vp": 4,
+    "per_player": 2,
+    "note": null
+  },
+  {
+    "industry": "造船厂",
+    "tile_id": "shipyard_0",
+    "level": 0,
+    "building_id": "building_003",
+    "era": "无法建造",
+    "cost": {},
+    "produce": null,
+    "flip": "—",
+    "flip_income": null,
+    "vp": null,
+    "per_player": 2,
+    "note": "占位板块，只能用发展行动弃掉，否则一直留在玩家面板"
+  },
+  {
+    "industry": "造船厂",
+    "tile_id": "shipyard_1",
+    "level": 1,
+    "building_id": "building_003",
+    "era": "canal_only",
+    "cost": {
+      "money": 16,
+      "iron": 1,
+      "coal": 1
+    },
+    "produce": null,
+    "flip": "flip_on_build",
+    "flip_income": 2,
+    "vp": 10,
+    "per_player": 2,
+    "note": null
+  },
+  {
+    "industry": "造船厂",
+    "tile_id": "shipyard_2",
+    "level": 2,
+    "building_id": "building_003",
+    "era": "rail_only",
+    "cost": {
+      "money": 25,
+      "iron": 1,
+      "coal": 1
+    },
+    "produce": {
+      "type": "coal",
+      "qty": 2
+    },
+    "flip": "coal_depleted",
+    "flip_income": 1,
+    "vp": 18,
+    "per_player": 2,
+    "note": null
+  },
+  {
+    "industry": "造船厂",
+    "tile_id": "shipyard_3",
+    "level": 3,
+    "building_id": "building_003",
+    "era": "—",
+    "cost": {},
+    "produce": null,
+    "flip": "—",
+    "flip_income": null,
+    "vp": null,
+    "per_player": null,
+    "note": "无此等级板块"
+  },
+  {
+    "industry": "造船厂",
+    "tile_id": "shipyard_4",
+    "level": 4,
+    "building_id": "building_003",
+    "era": "—",
+    "cost": {},
+    "produce": null,
+    "flip": "—",
+    "flip_income": null,
+    "vp": null,
+    "per_player": null,
+    "note": "无此等级板块"
+  },
+  {
+    "industry": "港口",
+    "tile_id": "port_0",
+    "level": 0,
+    "building_id": "building_004",
+    "era": "—",
+    "cost": {},
+    "produce": null,
+    "flip": "—",
+    "flip_income": null,
+    "vp": null,
+    "per_player": null,
+    "note": "无此工业板块"
+  },
+  {
+    "industry": "港口",
+    "tile_id": "port_1",
+    "level": 1,
+    "building_id": "building_004",
+    "era": "canal_only",
+    "cost": {
+      "money": 6
+    },
+    "produce": null,
+    "flip": "flip_on_sell_optional",
+    "flip_income": 3,
+    "vp": 2,
+    "per_player": 2,
+    "note": "无论是否翻面都视为市场标记"
+  },
+  {
+    "industry": "港口",
+    "tile_id": "port_2",
+    "level": 2,
+    "building_id": "building_004",
+    "era": "any",
+    "cost": {
+      "money": 7
+    },
+    "produce": null,
+    "flip": "同上",
+    "flip_income": 3,
+    "vp": 4,
+    "per_player": 2,
+    "note": "无论是否翻面都视为市场标记"
+  },
+  {
+    "industry": "港口",
+    "tile_id": "port_3",
+    "level": 3,
+    "building_id": "building_004",
+    "era": "any",
+    "cost": {
+      "money": 8
+    },
+    "produce": null,
+    "flip": "同上",
+    "flip_income": 4,
+    "vp": 6,
+    "per_player": 2,
+    "note": "无论是否翻面都视为市场标记"
+  },
+  {
+    "industry": "港口",
+    "tile_id": "port_4",
+    "level": 4,
+    "building_id": "building_004",
+    "era": "any",
+    "cost": {
+      "money": 9
+    },
+    "produce": null,
+    "flip": "同上",
+    "flip_income": 4,
+    "vp": 9,
+    "per_player": 2,
+    "note": "无论是否翻面都视为市场标记"
+  },
+  {
+    "industry": "棉花厂",
+    "tile_id": "cotton_0",
+    "level": 0,
+    "building_id": "building_005",
+    "era": "—",
+    "cost": {},
+    "produce": null,
+    "flip": "—",
+    "flip_income": null,
+    "vp": null,
+    "per_player": null,
+    "note": "无此工业板块"
+  },
+  {
+    "industry": "棉花厂",
+    "tile_id": "cotton_1",
+    "level": 1,
+    "building_id": "building_005",
+    "era": "canal_only",
+    "cost": {
+      "money": 12
+    },
+    "produce": null,
+    "flip": "flip_on_sell",
+    "flip_income": 5,
+    "vp": 5,
+    "per_player": 3,
+    "note": null
+  },
+  {
+    "industry": "棉花厂",
+    "tile_id": "cotton_2",
+    "level": 2,
+    "building_id": "building_005",
+    "era": "any",
+    "cost": {
+      "money": 15,
+      "coal": 1
+    },
+    "produce": null,
+    "flip": "flip_on_sell",
+    "flip_income": 4,
+    "vp": 5,
+    "per_player": 3,
+    "note": null
+  },
+  {
+    "industry": "棉花厂",
+    "tile_id": "cotton_3",
+    "level": 3,
+    "building_id": "building_005",
+    "era": "any",
+    "cost": {
+      "money": 16,
+      "coal": 1,
+      "iron": 1
+    },
+    "produce": null,
+    "flip": "flip_on_sell",
+    "flip_income": 3,
+    "vp": 9,
+    "per_player": 3,
+    "note": null
+  },
+  {
+    "industry": "棉花厂",
+    "tile_id": "cotton_4",
+    "level": 4,
+    "building_id": "building_005",
+    "era": "any",
+    "cost": {
+      "money": 18,
+      "coal": 1,
+      "iron": 1
+    },
+    "produce": null,
+    "flip": "flip_on_sell",
+    "flip_income": 2,
+    "vp": 12,
+    "per_player": 3,
+    "note": null
+  }
+]

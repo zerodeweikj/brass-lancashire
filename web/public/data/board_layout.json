@@ -1,0 +1,17 @@
+{
+ "hand_discard": {
+  "kind": "rect_image",
+  "name_zh": "手牌弃牌堆",
+  "center": [
+   2804,
+   1190
+  ],
+  "size": [
+   218,
+   300
+  ],
+  "angle": 0,
+  "image": "assets/markers/hand_discard_area.jpg",
+  "note": "手牌弃牌堆：个人面板正下方空区域（居中于面板中心 x=2804），mapC 容器内坐标 y=1190 → 世界 y=1280（面板底边 1050 下方 80px）；218×300=手牌尺寸；区域图 1497×2144 缩放。"
+ }
+}

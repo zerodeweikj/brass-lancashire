@@ -1,0 +1,239 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lancashire.local/schema/game_state.schema.json",
+  "title": "《工业革命·兰开夏》游戏状态数据模型",
+  "description": "对应《数据结构大纲》一·1.1~1.5。服务器持久化的动态状态；静态配置（地点/产业数值/收入轨/卡片定义）见 data/*.json，不在本 schema 重复。",
+  "$defs": {
+    "phase": {
+      "type": "string",
+      "enum": ["canal", "rail"],
+      "description": "当前大阶段：运河时代 / 铁路时代"
+    },
+    "color": {
+      "type": "string",
+      "enum": ["red", "yellow", "white", "purple"],
+      "description": "玩家颜色，全局唯一，开局选定不变"
+    },
+    "buttonEnabled": {
+      "type": "object",
+      "description": "8 按钮 enabled 标志（PRD 13.4）。服务器在玩家回合开始时计算并下发，前端只读。",
+      "properties": {
+        "build": { "type": "boolean", "description": "建造产业板块" },
+        "road": { "type": "boolean", "description": "修路" },
+        "develop": { "type": "boolean", "description": "发展" },
+        "sell": { "type": "boolean", "description": "出售（售卖棉花）" },
+        "loan": { "type": "boolean", "description": "贷款" },
+        "skip": { "type": "boolean", "description": "跳过" },
+        "doubleBuild": { "type": "boolean", "description": "双牌建造" },
+        "undo": { "type": "boolean", "description": "撤回（回合内撤销最近一次行动）" }
+      },
+      "required": ["build", "road", "develop", "sell", "loan", "skip", "doubleBuild", "undo"],
+      "additionalProperties": false
+    },
+    "industryTile": {
+      "type": "object",
+      "description": "工业板块实例（大纲 1.3）。玩家区域 = 已建工业板块实例 + 连结板块实例。",
+      "properties": {
+        "id": { "type": "string", "description": "实例唯一 ID，如 tile_001" },
+        "buildingId": { "type": "string", "enum": ["building_001", "building_002", "building_003", "building_004", "building_005"], "description": "铁厂/煤厂/造船厂/港口/棉花厂" },
+        "level": { "type": "integer", "minimum": 0, "maximum": 4 },
+        "owner": { "type": "string", "description": "所属玩家 ID" },
+        "location": { "type": "string", "description": "所在地点 ID（见 data/locations.json）" },
+        "slotIndex": { "type": "integer", "minimum": 0, "description": "在该地点的槽位序号" },
+        "flipped": { "type": "boolean", "description": "是否翻面；只有翻面板块才计分" },
+        "boardResources": { "type": "integer", "minimum": 0, "description": "板上剩余资源数（煤厂=煤、铁厂=铁、造船厂2级=煤；港口/棉花厂/造船厂1级为 0）" },
+        "builtEra": { "$ref": "#/$defs/phase", "description": "建造时代（清场规则：运河时代结束弃掉所有 1 级板块）" }
+      },
+      "required": ["id", "buildingId", "level", "owner", "location", "slotIndex", "flipped", "boardResources", "builtEra"],
+      "additionalProperties": false
+    },
+    "linkTile": {
+      "type": "object",
+      "description": "连结板块实例（大纲 1.4）。把两个地点连成一条边。",
+      "properties": {
+        "id": { "type": "string", "description": "实例唯一 ID，如 link_001" },
+        "type": { "type": "string", "enum": ["canal", "rail"] },
+        "owner": { "type": "string" },
+        "endpoints": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "两端地点 ID（一条边）"
+        },
+        "builtEra": { "$ref": "#/$defs/phase" }
+      },
+      "required": ["id", "type", "owner", "endpoints", "builtEra"],
+      "additionalProperties": false
+    },
+    "marketStock": {
+      "type": "object",
+      "description": "煤/铁市场存量：1/2/3/4 钱档各 2 单位；5 钱档视为无限、永不空缺，不记录。",
+      "properties": {
+        "price1": { "type": "integer", "minimum": 0 },
+        "price2": { "type": "integer", "minimum": 0 },
+        "price3": { "type": "integer", "minimum": 0 },
+        "price4": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["price1", "price2", "price3", "price4"],
+      "additionalProperties": false
+    },
+    "minBuildLevel": {
+      "type": "object",
+      "description": "各类建筑最低可建等级（0~4）。「发展」弃掉低等级板块后上移。",
+      "properties": {
+        "iron": { "type": "integer", "minimum": 0, "maximum": 4 },
+        "coal": { "type": "integer", "minimum": 0, "maximum": 4 },
+        "shipyard": { "type": "integer", "minimum": 0, "maximum": 4 },
+        "port": { "type": "integer", "minimum": 0, "maximum": 4 },
+        "cotton": { "type": "integer", "minimum": 0, "maximum": 4 }
+      },
+      "required": ["iron", "coal", "shipyard", "port", "cotton"],
+      "additionalProperties": false
+    },
+    "player": {
+      "type": "object",
+      "description": "玩家状态（大纲 1.2）",
+      "properties": {
+        "id": { "type": "string" },
+        "color": { "$ref": "#/$defs/color" },
+        "money": { "type": "integer", "description": "当前持有货币（开局 30）" },
+        "hand": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "手牌列表（城市牌 / 产业牌 ID，见 data/cards.json）"
+        },
+        "incomePos": { "type": "integer", "minimum": 0, "maximum": 99, "description": "收入轨位置（0~99 格索引）；收入数 = 查 data/income_track.json 派生，不单存" },
+        "industryTiles": { "type": "array", "items": { "$ref": "#/$defs/industryTile" } },
+        "linkTiles": { "type": "array", "items": { "$ref": "#/$defs/linkTile" } },
+        "remainingLinks": { "type": "integer", "minimum": 0, "description": "剩余连结板块数；每时代 14 个，运河时代结束清场后重置为 14" },
+        "minBuildLevel": { "$ref": "#/$defs/minBuildLevel" },
+        "spentThisRound": { "type": "integer", "minimum": 0, "description": "本轮已花费金钱（决定下一轮顺位，回合结束清零）" }
+      },
+      "required": ["id", "color", "money", "hand", "incomePos", "industryTiles", "linkTiles", "remainingLinks", "minBuildLevel", "spentThisRound"],
+      "additionalProperties": false
+    },
+    "gameStateSnapshot": {
+      "type": "object",
+      "description": "行动前完整状态快照（大纲 1.1「行动前状态快照」/ 6.12 撤回栈）。为简化递归引用，快照即 game_state 全量（允许 $ref 自身）。",
+      "properties": {
+        "phase": { "$ref": "#/$defs/phase" },
+        "round": { "type": "integer", "minimum": 1 },
+        "currentPlayer": { "type": "string" },
+        "actionPoints": { "type": "integer", "minimum": 0, "maximum": 2 },
+        "version": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["phase", "round", "currentPlayer", "actionPoints", "version"],
+      "additionalProperties": true
+    }
+  },
+  "type": "object",
+  "properties": {
+    "gameId": { "type": "string" },
+    "phase": { "$ref": "#/$defs/phase" },
+    "round": { "type": "integer", "minimum": 1, "description": "当前回合数（该时代内）" },
+    "currentPlayer": { "type": "string", "description": "当前行动玩家 ID" },
+    "actionPoints": { "type": "integer", "minimum": 0, "maximum": 2, "description": "剩余行动点；运河时代第一轮每人只 1 点；双牌建造一次耗 2 点独占本回合" },
+    "buttonEnabled": { "$ref": "#/$defs/buttonEnabled", "description": "当前玩家 8 按钮 enabled 标志（派生，随回合开始计算）" },
+    "selectableCards": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "当前玩家可选手牌集合（按 5.3 高亮规则过滤，建造还按城市/产业牌匹配槽位）"
+    },
+    "undoStack": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/gameStateSnapshot" },
+      "description": "本回合撤回栈（行动前快照栈）；每成功行动压栈、撤回弹栈、回合移交/超时/结算清空"
+    },
+    "turnOrder": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "回合顺位列表；下一轮顺位由本轮各人花费金钱决定（花钱最少者先行动）"
+    },
+    "spentThisRound": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 },
+      "description": "本轮各玩家已花费金钱（放回合顺位轨角色板块上、不放回银行）"
+    },
+    "drawPile": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "抽牌堆：剩余可抽手牌的有序列表（铁路时代开局由运河时代弃牌堆洗切而成）"
+    },
+    "discardPile": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "弃牌堆：已作为 cost 打出的手牌（牌面朝上）"
+    },
+    "discardedTiles": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "产业板块弃置区：「发展」弃掉的低等级板块 + 运河时代清场弃掉的板块"
+    },
+    "remoteMarketDeck": {
+      "type": "object",
+      "description": "远方市场牌库状态（2026-08-06 定稿：4人11张/3人9张/2人7张）",
+      "properties": {
+        "cards": {
+          "type": "array",
+          "items": { "type": "integer", "enum": [0, -1, -2, -3, -4] },
+          "description": "未抽出的牌面数值（抽中移除、不塞回；运河时代计分时洗回）"
+        },
+        "drawn": {
+          "type": "array",
+          "items": { "type": "integer", "enum": [0, -1, -2, -3, -4] },
+          "description": "已抽出的牌面数值"
+        }
+      },
+      "required": ["cards", "drawn"],
+      "additionalProperties": false
+    },
+    "remoteCottonTrack": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 8,
+      "description": "远方的棉花市场轨位置（0~8），指向数值列表 [3,3,2,2,1,1,0,0,0]；初始 0（最左）"
+    },
+    "coalMarket": { "$ref": "#/$defs/marketStock" },
+    "ironMarket": { "$ref": "#/$defs/marketStock" },
+    "generalSupply": {
+      "type": "object",
+      "description": "一般供应区存量（公共资源池：煤、铁各剩多少）",
+      "properties": {
+        "coal": { "type": "integer", "minimum": 0 },
+        "iron": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["coal", "iron"],
+      "additionalProperties": false
+    },
+    "scores": {
+      "type": "object",
+      "description": "各玩家阶段得分/最终得分",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "canal": { "type": "integer", "minimum": 0 },
+          "rail": { "type": "integer", "minimum": 0 },
+          "total": { "type": "integer", "minimum": 0 }
+        },
+        "required": ["canal", "rail", "total"],
+        "additionalProperties": false
+      }
+    },
+    "gameOver": { "type": "boolean", "description": "铁路时代计分后置位，触发终局结算" },
+    "version": { "type": "integer", "minimum": 0, "description": "并发控制版本号（防竞态，见 PRD 12.4）" },
+    "players": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/player" },
+      "minItems": 2,
+      "maxItems": 4
+    }
+  },
+  "required": [
+    "gameId", "phase", "round", "currentPlayer", "actionPoints", "buttonEnabled", "selectableCards",
+    "undoStack", "turnOrder", "spentThisRound", "drawPile", "discardPile", "discardedTiles",
+    "remoteMarketDeck", "remoteCottonTrack", "coalMarket", "ironMarket", "generalSupply",
+    "scores", "gameOver", "version", "players"
+  ],
+  "additionalProperties": false
+}

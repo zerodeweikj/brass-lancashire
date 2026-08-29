@@ -1,0 +1,127 @@
+[
+ {
+  "id": "city_manchester",
+  "type": "city",
+  "city": "MANCHESTER"
+ },
+ {
+  "id": "city_macclesfield",
+  "type": "city",
+  "city": "MACCLESFIELD"
+ },
+ {
+  "id": "city_ellesmereport",
+  "type": "city",
+  "city": "ELLESMEREPORT"
+ },
+ {
+  "id": "city_stockport",
+  "type": "city",
+  "city": "STOCKPORT"
+ },
+ {
+  "id": "city_birkenhead",
+  "type": "city",
+  "city": "BIRKENHEAD"
+ },
+ {
+  "id": "city_liverpool",
+  "type": "city",
+  "city": "LIVERPOOL"
+ },
+ {
+  "id": "city_preston",
+  "type": "city",
+  "city": "PRESTON"
+ },
+ {
+  "id": "city_fleetwood",
+  "type": "city",
+  "city": "FLEETWOOD"
+ },
+ {
+  "id": "city_lancaster",
+  "type": "city",
+  "city": "LANCASTER"
+ },
+ {
+  "id": "city_blackburn",
+  "type": "city",
+  "city": "BLACKBURN"
+ },
+ {
+  "id": "city_barrow-in-furness",
+  "type": "city",
+  "city": "BARROW-IN-FURNESS"
+ },
+ {
+  "id": "city_bolton",
+  "type": "city",
+  "city": "BOLTON"
+ },
+ {
+  "id": "city_burnley",
+  "type": "city",
+  "city": "BURNLEY"
+ },
+ {
+  "id": "city_wigan",
+  "type": "city",
+  "city": "WIGAN"
+ },
+ {
+  "id": "city_bury",
+  "type": "city",
+  "city": "BURY"
+ },
+ {
+  "id": "city_colne",
+  "type": "city",
+  "city": "COLNE"
+ },
+ {
+  "id": "city_rochdale",
+  "type": "city",
+  "city": "ROCHDALE"
+ },
+ {
+  "id": "city_oldham",
+  "type": "city",
+  "city": "OLDHAM"
+ },
+ {
+  "id": "city_warringtonandruncorn",
+  "type": "city",
+  "city": "WARRINGTONANDRUNCORN"
+ },
+ {
+  "id": "ind_building_001",
+  "type": "industry",
+  "industry": "铁厂",
+  "building_id": "building_001"
+ },
+ {
+  "id": "ind_building_002",
+  "type": "industry",
+  "industry": "煤厂",
+  "building_id": "building_002"
+ },
+ {
+  "id": "ind_building_003",
+  "type": "industry",
+  "industry": "造船厂",
+  "building_id": "building_003"
+ },
+ {
+  "id": "ind_building_004",
+  "type": "industry",
+  "industry": "港口",
+  "building_id": "building_004"
+ },
+ {
+  "id": "ind_building_005",
+  "type": "industry",
+  "industry": "棉花厂",
+  "building_id": "building_005"
+ }
+]
