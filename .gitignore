@@ -39,3 +39,9 @@ out/
 backup/
 slot_detect_report.json
 
+# 本地运行日志（每次启动可重生成）
+*.log
+
+# 端到端测试截图产物
+web/tests/*.png
+

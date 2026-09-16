@@ -36,6 +36,9 @@ async function request(method, path, { body, params, signal } = {}) {
     if (s) url += `?${s}`;
   }
   const init = { method, signal, headers: {} };
+  // 登录 token 自动附带（游客无 token 时不影响匿名游玩）
+  const t = auth.token;
+  if (t) init.headers['Authorization'] = 'Bearer ' + t;
   if (body !== undefined) {
     init.headers['Content-Type'] = 'application/json';
     init.body = JSON.stringify(body);
@@ -79,6 +82,44 @@ export const api = {
   /** 玩家留言（公开意见箱，无需登录）：text 必填，contact 选填。 */
   feedback: (text, contact = '') =>
     request('POST', '/api/feedback', { body: { text, contact: contact || '' } }),
+};
+
+// ---------------- 账号系统（登录 / 注册 / 个人空间 / 找回） ----------------
+
+const AUTH_KEY = 'lancashire.auth.v1';
+
+/** 固定安全问答题目（与后端一致）。 */
+export const SECURITY_QUESTIONS = [
+  { qid: 'q_father', question: '你父亲的名字是？' },
+  { qid: 'q_mother', question: '你母亲的名字是？' },
+  { qid: 'q_school', question: '你就读的第一所小学叫什么？' },
+];
+
+function _authRaw() {
+  try { return JSON.parse(localStorage.getItem(AUTH_KEY) || 'null'); } catch { return null; }
+}
+
+/** 账号状态单例：token / 用户 存 localStorage，刷新后自动恢复。 */
+export const auth = {
+  get token() { const a = _authRaw(); return a?.token || ''; },
+  get user() { const a = _authRaw(); return a?.user || null; },
+  get isLoggedIn() { return !!this.token; },
+  save(token, user) { try { localStorage.setItem(AUTH_KEY, JSON.stringify({ token, user })); } catch { /* ignore */ } },
+  clear() { try { localStorage.removeItem(AUTH_KEY); } catch { /* ignore */ } },
+
+  me: () => request('GET', '/api/auth/me'),
+  register: (payload) => request('POST', '/api/auth/register', { body: payload }),
+  login: (username, password) => request('POST', '/api/auth/login', { body: { username, password } }),
+  logout: () => request('POST', '/api/auth/logout'),
+  updateProfile: (displayName, avatar) => request('PUT', '/api/auth/me', { body: { displayName, avatar } }),
+  changePassword: (oldPassword, newPassword) =>
+    request('POST', '/api/auth/change-password', { body: { oldPassword, newPassword } }),
+  deleteAccount: (password) => request('POST', '/api/auth/delete-account', { body: { password } }),
+  recoverStart: () => request('POST', '/api/auth/recover/start', {}),
+  recoverVerify: (username, answers, newPassword) =>
+    request('POST', '/api/auth/recover/verify', { body: { username, answers, newPassword } }),
+  bindRoom: (roomId, roomToken) => request('POST', '/api/auth/bind-room', { body: { roomId, roomToken } }),
+  recoverRoom: (roomId) => request('POST', '/api/auth/recover-room', { body: { roomId } }),
 };
 
 export default api;

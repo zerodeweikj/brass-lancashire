@@ -2,3 +2,9 @@ fastapi>=0.115
 uvicorn[standard]>=0.30
 jsonschema>=4.0
 pyyaml>=6.0
+# 账号系统（登录/注册/个人空间）：Neon Postgres 或本地 SQLite 回退
+sqlalchemy>=2.0
+psycopg2-binary>=2.9
+passlib>=1.7
+bcrypt>=4.0
+PyJWT>=2.8

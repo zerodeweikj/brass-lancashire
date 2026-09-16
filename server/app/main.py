@@ -24,13 +24,14 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-from fastapi import Body, FastAPI, HTTPException, Query, Request
+from fastapi import Body, Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from . import db, rooms
+from .auth import router as auth_router, get_optional_user, get_current_user, init_auth
 from engine import actions as engine_actions
 from engine import data as engine_data
 from engine import flow as engine_flow
@@ -38,6 +39,7 @@ from engine import setup as engine_setup
 from engine import state as engine_state
 
 app = FastAPI(title='《工业革命·兰开夏》联机服务器', version='1.0.0')
+app.include_router(auth_router)
 
 # 来源限制：默认 '*' 方便本机/局域网；部署到 VPS 时设环境变量 CORS_ORIGINS=https://你的域名
 # （同源由服务端托管 web/dist 时不依赖 CORS；此项仅用于 ?api= 跨源调试或独立前端托管）
@@ -51,6 +53,7 @@ app.add_middleware(
 )
 
 db.init_db()
+init_auth()  # 账号库建表（幂等；无 DATABASE_URL 时回退本地 auth.db）
 
 POLL_INTERVAL = 0.25      # 长轮询内部检查间隔（秒）
 POLL_TIMEOUT_MAX = 30.0
@@ -295,17 +298,32 @@ def list_rooms():
 
 
 @app.post('/api/rooms')
-def create_room(req: CreateRoomReq, request: Request):
+def create_room(req: CreateRoomReq, request: Request, current_user: dict = Depends(get_optional_user)):
     rate_limit(request, 'rooms', 10, 60)
     room, token = rooms.create_room(req.roomName, req.playerName, with_bot=req.withBot, password=req.password)
+    # 登录用户建房即把账号绑到房主座位（游客留空，保留匿名游玩）
+    if current_user:
+        room['seats'][0]['userId'] = current_user['id']
+        db.save_room(room['roomId'], room)
     return {'token': token, 'room': rooms.room_view(room, token)}
 
 
 @app.post('/api/rooms/{room_id}/join')
-def join_room(room_id: str, req: JoinReq):
+def join_room(room_id: str, req: JoinReq, current_user: dict = Depends(get_optional_user)):
+    # 同账号同房间防重复占座（房间 + user_id 唯一）
+    if current_user:
+        existing = db.load_room(room_id)
+        if existing:
+            for s in existing.get('seats', []):
+                if s.get('userId') == current_user['id']:
+                    raise HTTPException(400, '你已在该房间')
     room, token, err = rooms.join_room(room_id, req.playerName, req.password)
     if err:
         raise HTTPException(400, err)
+    # 登录用户入房即把账号绑到新座位
+    if current_user:
+        room['seats'][-1]['userId'] = current_user['id']
+        db.save_room(room['roomId'], room)
     return {'token': token, 'room': rooms.room_view(room, token)}
 
 
@@ -357,6 +375,43 @@ def restart(room_id: str, req: StartReq):
     room['rev'] += 1
     db.save_room(room_id, room)
     return {'room': rooms.room_view(room, req.token)}
+
+
+# ---------------- 账号 ↔ 房间绑定（登录系统接入点） ----------------
+
+@app.post('/api/auth/bind-room')
+def bind_room(request: Request, body: dict):
+    """游客中途登录：把当前房间座位绑定到登录账号（用于「先玩后登录」）。"""
+    user = get_current_user(request)
+    room_id = body.get('roomId')
+    room_token = body.get('roomToken')
+    room = db.load_room(room_id) if room_id else None
+    if not room:
+        raise HTTPException(404, '房间不存在')
+    seat = rooms.seat_of(room, room_token)
+    if not seat:
+        raise HTTPException(403, '房间身份无效')
+    seat['userId'] = user['id']
+    room['rev'] += 1
+    db.save_room(room['roomId'], room)
+    return {'ok': True}
+
+
+@app.post('/api/auth/recover-room')
+def recover_room(request: Request, body: dict):
+    """凭登录 token 找回房间 token：登录用户若已绑定某房间座位，返回其房令牌（刷新不丢房）。
+
+    前端把 roomToken 存本地即可避免重连问题；此接口用于本地存储被清空后的兜底恢复。
+    """
+    user = get_current_user(request)
+    room_id = body.get('roomId')
+    room = db.load_room(room_id) if room_id else None
+    if not room:
+        raise HTTPException(404, '房间不存在')
+    for s in room.get('seats', []):
+        if s.get('userId') == user['id']:
+            return {'token': s['token'], 'room': rooms.room_view(room, s['token'])}
+    raise HTTPException(404, '你当前不在该房间')
 
 
 # ---------------- 状态同步（长轮询） ----------------

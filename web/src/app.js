@@ -12,8 +12,9 @@ import Modal from './ui/Modal.js';
 import Lobby from './ui/Lobby.js';
 import Hud from './ui/Hud.js';
 import LoadingScreen from './ui/LoadingScreen.js';
+import AuthScreen from './ui/AuthScreen.js';
 import session from './net/session.js';
-import api from './net/api.js';
+import api, { auth } from './net/api.js';
 import { MAT_KEY_CN, PLAYER_CSS, ACTION_CN } from './game/mappings.js';
 
 const pairKey = (a, b) => [a, b].sort().join('|');
@@ -55,6 +56,42 @@ export default class App {
       onMapScrollY: (r) => this.scene?.setScrollRatioY?.(r),
     });
     this.hud.setStripOpenChange(() => this._syncMapInput());
+    // 账号 UI：右上角账号条 + 登录/注册/设置弹层
+    this.authOpen = false;
+    this.authScreen = new AuthScreen(this.host, this.session, {
+      onLoggedIn: (u) => this.onLoggedIn(u),
+      onLoggedOut: () => this.onLoggedOut(),
+      onOverlayChange: (open) => this.setAuthOpen(open),
+    });
+  }
+
+  /** 账号弹层打开时禁用 Phaser 地图点击，防事件穿透（与 Modal / 行动向导条共用同一开关）。 */
+  setAuthOpen(open) {
+    this.authOpen = open;
+    this._syncMapInput();
+  }
+
+  /** 登录成功后：若当前已在某房间（游客身份），把座位绑定到账号。 */
+  onLoggedIn() {
+    if (this.session.inRoom && this.session.roomId && this.session.token) {
+      auth.bindRoom(this.session.roomId, this.session.token).catch(() => { /* 非关键 */ });
+    }
+  }
+
+  onLoggedOut() {
+    // 账号条已由 AuthScreen 重绘；房间座位保留（刷新仍凭房间身份回本局）
+  }
+
+  /** 启动判态：有 token 则恢复登录态，刷新页面不掉登录。 */
+  async restoreAuth() {
+    if (!auth.isLoggedIn) return;
+    try {
+      const r = await auth.me();
+      if (r.authenticated && r.user) { auth.save(auth.token, r.user); this.authScreen.renderBar(); }
+      else auth.clear();
+    } catch {
+      auth.clear();
+    }
   }
 
   /** 任一 DOM 覆盖层（结算 Modal / 行动向导条）打开时禁用地图点击，防事件穿透。
@@ -62,7 +99,7 @@ export default class App {
   _syncMapInput() {
     if (!this.game?.input) return;
     const forecloseOpen = !!(this.hud.stripOpen && this._forecloseKey);
-    this.game.input.enabled = !(this.modal.open || (this.hud.stripOpen && !forecloseOpen));
+    this.game.input.enabled = !(this.modal.open || (this.hud.stripOpen && !forecloseOpen) || this.authOpen);
   }
 
   // ---------------- 启动 ----------------
@@ -70,6 +107,9 @@ export default class App {
   async boot() {
     // 大厅立即挂载，用户无需等待 Phaser 场景就绪（场景注册是异步的）。
     this.lobby.mount();
+
+    // 启动判态：本地有登录 token 则恢复账号（刷新页面不掉登录）
+    this.restoreAuth();
 
     this.session.on('update', () => this.sync());
     this.session.on('online', (v) => this.hud.setOnline(v));
