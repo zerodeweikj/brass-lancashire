@@ -16,9 +16,17 @@ services:
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/health
     envVars:
+      # 非敏感配置（可安全提交）
       - key: PYTHON_VERSION
         value: "3.11.9"
       - key: BRASS_HOST
         value: 0.0.0.0
       - key: BRASS_LOG
         value: info
+      - key: AUTH_TOKEN_TTL
+        value: "2592000"   # 登录 token 有效期（秒），30 天
+      # 敏感配置：绝不写值进仓库！sync:false 表示由 Render 控制台填写（部署时会提示输入），不进 git
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false

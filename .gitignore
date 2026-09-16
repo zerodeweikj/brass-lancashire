@@ -14,6 +14,11 @@ dist/
 !web/dist/**
 *.local
 
+# 密钥 / 环境变量（绝不入库！真实值只在 Render 控制台或本地 .env 填写，切勿提交）
+.env
+.env.*
+!.env.example
+
 # SQLite
 *.db
 *.db-journal
