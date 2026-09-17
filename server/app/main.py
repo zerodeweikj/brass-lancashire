@@ -30,7 +30,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from . import db, rooms
+from . import auth_db, db, rooms
 from .auth import router as auth_router, get_optional_user, get_current_user, init_auth
 from engine import actions as engine_actions
 from engine import data as engine_data
@@ -217,6 +217,46 @@ def _maybe_autostart(room_id, room, token):
     return db.load_room(room_id) or room
 
 
+# ---------------- 终局结算（房间置 finished + 记录登录玩家战绩） ----------------
+
+def _record_results(room, st):
+    """终局时给每个绑定了账号的座位写一条战绩（进 Neon 持久库，游客不记）。
+
+    只改 room dict（置 resultsRecorded）与账号库，不碰对局库；
+    由调用方在合适时机 db.save_room。战绩写失败只打日志，绝不影响主流程。
+    """
+    if room.get('resultsRecorded') or not st or not st.get('gameOver'):
+        return
+    room['resultsRecorded'] = True
+    ranking = st.get('ranking') or []
+    scores = st.get('scores') or {}
+    n = len(st.get('players') or []) or len(ranking)
+    for seat in room.get('seats', []):
+        uid = seat.get('userId')
+        pid = seat.get('playerId')
+        if not uid or not pid or pid not in scores:
+            continue
+        try:
+            rank = ranking.index(pid) + 1 if pid in ranking else n
+        except ValueError:
+            rank = n
+        score = int((scores.get(pid) or {}).get('total') or 0)
+        try:
+            auth_db.add_game_result(uid, n, rank, score)
+        except Exception as e:   # 账号库挂了不影响对局收尾
+            print('[stats] 战绩写入失败 user=%s: %r' % (uid, e))
+
+
+def _finish_game(room, st):
+    """对局终局统一入口：房间置 finished + 记战绩 + 落库（幂等）。"""
+    if room['status'] == 'finished':
+        return
+    room['status'] = 'finished'
+    room['rev'] += 1
+    _record_results(room, st)
+    db.save_room(room['roomId'], room)
+
+
 def local_ips():
     """列出本机可被局域网访问的 IPv4 地址，便于打印邀请地址。"""
     ips = set()
@@ -372,6 +412,7 @@ def restart(room_id: str, req: StartReq):
         raise HTTPException(403, '只有房主可以重开')
     room['status'] = 'lobby'
     room['gameId'] = None
+    room['resultsRecorded'] = False   # 重开新局后战绩要能重新记录
     room['rev'] += 1
     db.save_room(room_id, room)
     return {'room': rooms.room_view(room, req.token)}
@@ -459,10 +500,8 @@ def submit_action(room_id: str, req: ActionReq):
     if result['ok']:
         drive_bots(room, st)                 # 行动可能推进到机器人回合，替它走完再落库
         db.save_game(room['gameId'], st)
-        if st.get('gameOver') and room['status'] != 'finished':
-            room['status'] = 'finished'
-            room['rev'] += 1
-            db.save_room(room_id, room)
+        if st.get('gameOver'):
+            _finish_game(room, st)           # 终局：置 finished + 记录登录玩家战绩
     return {'result': result, 'rev': rooms.rev_of(room, st),
             'state': rooms.view_for(st, seat['playerId'])}
 
@@ -482,10 +521,8 @@ def end_turn(room_id: str, req: TokenReq):
     engine_flow.end_turn(st)
     drive_bots(room, st)
     db.save_game(room['gameId'], st)
-    if st.get('gameOver') and room['status'] != 'finished':
-        room['status'] = 'finished'
-        room['rev'] += 1
-        db.save_room(room_id, room)
+    if st.get('gameOver'):
+        _finish_game(room, st)               # 终局：置 finished + 记录登录玩家战绩
     return {'rev': rooms.rev_of(room, st), 'state': rooms.view_for(st, seat['playerId'])}
 
 

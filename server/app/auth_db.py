@@ -131,6 +131,20 @@ class SecurityAnswer(Base):
     answer_hash = Column(String(255), nullable=False)
 
 
+class GameResult(Base):
+    """单局战绩：终局时给每个绑定了账号的座位各记一条（游客不记）。
+
+    必须放本库（Neon 持久盘）而非对局 SQLite——Render 临时盘重启即清空，战绩会丢。
+    """
+    __tablename__ = 'game_results'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
+    played_at = Column(DateTime, nullable=False, default=lambda: datetime.utcnow())
+    player_count = Column(Integer, nullable=False)
+    rank = Column(Integer, nullable=False)      # 1 起；ranking 里找不到时兜底为末位
+    score = Column(Integer, nullable=False)     # 终局总分（含连接分）
+
+
 # ---------------- 归一化工具 ----------------
 
 def normalize_username(s):
@@ -232,10 +246,11 @@ def update_user(user_id, display_name=None, avatar=None, password_hash=None):
 
 
 def delete_user(user_id):
-    """级联删除用户（sessions / security_answers 由外键 ON DELETE CASCADE 清理）。"""
+    """级联删除用户（sessions / security_answers / game_results 一并清理）。"""
     def _fn(s):
         s.execute(delete(SecurityAnswer).where(SecurityAnswer.user_id == user_id))
         s.execute(delete(Session).where(Session.user_id == user_id))
+        s.execute(delete(GameResult).where(GameResult.user_id == user_id))
         s.execute(delete(User).where(User.id == user_id))
         s.commit()
         return True
@@ -354,6 +369,68 @@ def _check_secret(hash_str, secret):
         return bcrypt.checkpw(secret.encode('utf-8'), hash_str.encode('utf-8'))
     except (ValueError, TypeError):
         return False
+
+
+# ---------------- 战绩 ----------------
+
+def add_game_result(user_id, player_count, rank, score, played_at=None):
+    """记一条终局成绩。player_count/rank/score 由调用方从引擎终局态取。"""
+    rec = GameResult(user_id=int(user_id), player_count=int(player_count),
+                     rank=int(rank), score=int(score),
+                     played_at=played_at or datetime.utcnow())
+    def _fn(s):
+        s.add(rec)
+        s.commit()
+        return True
+    return _run(_fn)
+
+
+def get_user_stats(user_id, recent_limit=20):
+    """汇总战绩 + 最近若干条明细（新→旧）。
+
+    返回 {total, wins, winRate(百分数一位小数), bestScore, avgRank(一位小数), recent[]}。
+    玩家数据量小（个人局数），直接全量取回在 Python 侧聚合即可，无需 SQL 聚合。
+    """
+    def _fn(s):
+        rows = s.execute(
+            select(GameResult)
+            .where(GameResult.user_id == user_id)
+            .order_by(GameResult.played_at.desc(), GameResult.id.desc())
+        ).scalars().all()
+        total = len(rows)
+        if not total:
+            return {'total': 0, 'wins': 0, 'winRate': 0, 'bestScore': None,
+                    'avgRank': None, 'recent': []}
+        wins = sum(1 for r in rows if r.rank == 1)
+        return {
+            'total': total,
+            'wins': wins,
+            'winRate': round(wins * 100.0 / total, 1),
+            'bestScore': max(r.score for r in rows),
+            'avgRank': round(sum(r.rank for r in rows) / total, 1),
+            'recent': [{
+                'playedAt': r.played_at.isoformat() if r.played_at else None,
+                'playerCount': r.player_count,
+                'rank': r.rank,
+                'score': r.score,
+                'won': r.rank == 1,
+            } for r in rows[:recent_limit]],
+        }
+    return _run(_fn)
+
+
+# ---------------- 公开信息（供房间视图注入头像） ----------------
+
+def get_user_public(user_id):
+    """轻量公开信息：{displayName, avatar}；用户不存在返回 None。
+
+    仅供「把玩家自己的头像带进对局」使用，绝不含密码哈希等敏感字段。
+    """
+    u = get_user_by_id(user_id)
+    if not u:
+        return None
+    return {'displayName': u.get('displayName') or u.get('username'),
+            'avatar': u.get('avatar') or ''}
 
 
 def _constant_time_eq(a, b):

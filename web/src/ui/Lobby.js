@@ -234,14 +234,17 @@ export default class Lobby {
     const me = seats.find((s) => s.isMe);
     const allReady = seats.length >= 2 && seats.every((s) => s.ready);
 
-    const rows = seats.map((s) => h('div.seat', {
-      style: { borderLeftColor: PLAYER_CSS[s.color] || '#888' },
-    },
-    h('div.nm', null, `${s.name}`),
-    h('div.tag', null, `${PLAYER_CN[s.color] || s.color}方 · ${s.playerId}`),
-    s.isMe ? h('div.tag.ready', null, '你') : null,
-    h('div.tag' + (s.ready ? '.ready' : ''), null, s.ready ? '已准备' : '未准备'),
-    ));
+    const rows = seats.map((s) => {
+      const av = s.avatar || (s.isBot ? '🤖' : '');   // 登录玩家显示账号头像，机器人固定，游客不显示
+      return h('div.seat', {
+        style: { borderLeftColor: PLAYER_CSS[s.color] || '#888' },
+      },
+      h('div.nm', null, av ? h('span.sv-av', { text: av }) : null, `${s.name}`),
+      h('div.tag', null, `${PLAYER_CN[s.color] || s.color}方 · ${s.playerId}`),
+      s.isMe ? h('div.tag.ready', null, '你') : null,
+      h('div.tag' + (s.ready ? '.ready' : ''), null, s.ready ? '已准备' : '未准备'),
+      );
+    });
 
     for (let i = seats.length; i < (room.maxSeats || 4); i++) {
       rows.push(h('div.seat', { style: { opacity: .45 } }, h('div.nm', null, '空座位')));

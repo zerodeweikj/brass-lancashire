@@ -108,6 +108,7 @@ export const auth = {
   clear() { try { localStorage.removeItem(AUTH_KEY); } catch { /* ignore */ } },
 
   me: () => request('GET', '/api/auth/me'),
+  stats: () => request('GET', '/api/auth/me/stats'),
   register: (payload) => request('POST', '/api/auth/register', { body: payload }),
   login: (username, password) => request('POST', '/api/auth/login', { body: { username, password } }),
   logout: () => request('POST', '/api/auth/logout'),

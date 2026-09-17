@@ -703,3 +703,28 @@ input:focus, select:focus { border-color: var(--accent); }
 .acct-x { position: absolute; top: -4px; right: -4px; background: transparent; border: none;
   font-size: 18px; color: var(--muted); padding: 4px 8px; }
 .acct-x:hover { color: var(--text); background: transparent; }
+
+/* ---- 个人空间：三 Tab（资料 / 战绩 / 安全） ---- */
+.acct-set-tabs { margin: 6px 0 14px; }
+.acct-set-body { min-height: 120px; }
+
+/* 战绩统计：指标卡 + 最近对局列表 */
+.acct-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.acct-stat { background: var(--panel-2); border-radius: 8px; padding: 10px 8px; text-align: center; }
+.acct-stat .k { display: block; font-size: 11.5px; color: var(--muted); margin-bottom: 3px; }
+.acct-stat .v { display: block; font-size: 20px; font-weight: 700; line-height: 1.1; }
+.acct-stat .v.win { color: var(--accent); }
+.acct-glist { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.acct-grow { display: flex; align-items: center; gap: 8px; padding: 8px 12px; font-size: 12.5px;
+  border-bottom: 1px solid var(--line); }
+.acct-grow:last-child { border-bottom: none; }
+.acct-grow .d { flex: 1; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.acct-grow .r { width: 56px; text-align: center; color: var(--muted); }
+.acct-grow .s { width: 52px; text-align: right; }
+.acct-grow.won .r { color: var(--accent); font-weight: 700; }
+.acct-grow.won .s { color: var(--accent); }
+
+/* ---- 游戏内右侧玩家面板 / 大厅座位：玩家自己的头像 ---- */
+.ppanel .phead .pav { font-size: 17px; line-height: 1; }
+.seat .nm { display: flex; align-items: center; gap: 6px; }
+.seat .nm .sv-av { font-size: 16px; line-height: 1; }

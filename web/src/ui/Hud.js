@@ -422,6 +422,11 @@ export default class Hud {
     this._hidePbTip();   // 重渲前先收起悬停提示，避免「残留旧提示」错觉
     const st = this.state; if (!st) return;
     const order = st.turnOrder || (st.players || []).map((p) => p.id);
+    // 座位头像：登录玩家带自己的账号头像进对局（房间视图注入）；机器人固定头像；游客不显示
+    const avByPid = {};
+    ((this.room && this.room.seats) || []).forEach((s) => {
+      if (s.playerId) avByPid[s.playerId] = s.avatar || (s.isBot ? '🤖' : '');
+    });
 
     order.forEach((pid, i) => {
       const p = (st.players || []).find((x) => x.id === pid);
@@ -429,12 +434,14 @@ export default class Hud {
       const isMe = p.id === st.viewerId;
       const inc = this.incomeOf(p);
       const vp = st.scores?.[p.id]?.total ?? 0;
+      const av = avByPid[p.id] || (p.isBot ? '🤖' : '');
 
       const panel = h(`div.ppanel${p.id === st.currentPlayer ? '.cur' : ''}`, {
         style: { borderTopColor: PLAYER_CSS[p.color] || '#888' },
       });
       panel.appendChild(h('div.phead', null,
         h('span.dot', { style: { background: PLAYER_CSS[p.color] || '#888' } }),
+        av ? h('span.pav', { text: av }) : null,
         h('span.nm', null, `${i + 1}. ${p.name}`),
         isMe ? h('span.me', null, '我') : null,
         h('span.stat', null, `${money(p.money)} · 收入 ${inc == null ? '-' : inc} · 连接 ${p.remainingLinks ?? '-'} · VP ${vp}`),

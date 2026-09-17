@@ -10,7 +10,7 @@ import secrets
 import threading
 import time
 
-from . import db
+from . import auth_db, db
 
 COLORS = ['red', 'yellow', 'white', 'purple']
 MAX_SEATS = 4
@@ -194,6 +194,33 @@ def seat_of(room, token):
     return None
 
 
+# ---------------- 座位头像（登录玩家带自己的账号头像进对局） ----------------
+
+_AVATAR_TTL = 60.0                 # 头像缓存秒数：长轮询高频调 room_view，不能每次都打账号库
+_AVATAR_CACHE = {}                 # user_id -> (avatar, 过期时间戳)
+
+
+def seat_avatar(seat):
+    """座位头像：绑定了账号则取账号头像；游客/机器人返回 ''（前端自行兜底）。
+
+    账号库（Neon）挂掉时绝不影响房间视图——异常吞掉并退回缓存旧值。
+    """
+    uid = seat.get('userId')
+    if not uid:
+        return ''
+    now = time.time()
+    hit = _AVATAR_CACHE.get(uid)
+    if hit and hit[1] > now:
+        return hit[0]
+    try:
+        u = auth_db.get_user_public(uid)
+        av = (u or {}).get('avatar') or ''
+    except Exception:
+        av = hit[0] if hit else ''   # 查询失败退回旧值（头像非关键数据）
+    _AVATAR_CACHE[uid] = (av, now + _AVATAR_TTL)
+    return av
+
+
 def rev_of(room, state):
     return '%d.%d' % (room.get('rev', 0), (state or {}).get('version', 0))
 
@@ -205,7 +232,7 @@ def public_room(room):
         'bot': bool(room.get('bot')),
         'hasPassword': bool(room.get('password')),
         'players': [{'name': s['name'], 'color': s['color'], 'ready': s['ready'],
-                     'isBot': bool(s.get('isBot')),
+                     'isBot': bool(s.get('isBot')), 'avatar': seat_avatar(s),
                      'online': bool(s.get('isBot')) or time.time() - s.get('lastSeen', 0) < 30}
                     for s in room['seats']],
         'seatCount': len(room['seats']), 'maxSeats': MAX_SEATS,
@@ -226,7 +253,7 @@ def room_view(room, token):
         'myPlayerId': me['playerId'] if me else None,
         'seats': [{'index': s['index'], 'name': s['name'], 'color': s['color'],
                    'playerId': s['playerId'], 'ready': s['ready'],
-                   'isBot': bool(s.get('isBot')),
+                   'isBot': bool(s.get('isBot')), 'avatar': seat_avatar(s),
                    'online': bool(s.get('isBot')) or time.time() - s.get('lastSeen', 0) < 30,
                    'isMe': s['token'] == token}
                   for s in room['seats']],

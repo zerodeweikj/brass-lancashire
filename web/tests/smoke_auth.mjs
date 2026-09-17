@@ -56,11 +56,29 @@ assert('注册后自动登录（账号条显示昵称）', loggedIn);
 const shownName = await page.evaluate(() => document.querySelector('#accountbar .acct-name')?.textContent || '');
 assert('昵称正确显示', shownName === NICK, shownName);
 
-// 打开个人空间
+// 打开个人空间（三 Tab：资料 / 战绩 / 安全）
 await page.locator('.acct-chip').click();
 await page.waitForSelector('.auth-overlay', { timeout: 5000 });
-const settingsOk = await page.evaluate(() => document.body.innerText.includes('个人空间') && document.body.innerText.includes('修改密码'));
-assert('个人空间含「资料/改密」分区', settingsOk);
+const tabsOk = await page.evaluate(() => {
+  const t = document.querySelectorAll('.acct-set-tabs .auth-tab');
+  return t.length === 3 && [...t].every((x) => ['个人资料', '战绩统计', '账号安全'].includes(x.textContent.trim()));
+});
+assert('个人空间含三个 Tab（资料/战绩/安全）', tabsOk);
+
+// 战绩 Tab：新注册账号应显示空态
+await page.locator('.acct-set-tabs .auth-tab', { hasText: '战绩统计' }).click();
+await page.waitForTimeout(500);
+const statsOk = await page.evaluate(() => document.body.innerText.includes('对局记录'));
+assert('战绩 Tab 可切换并显示空态', statsOk);
+
+// 账号安全 Tab：改密 / 退出当前设备 / 注销
+await page.locator('.acct-set-tabs .auth-tab', { hasText: '账号安全' }).click();
+await page.waitForTimeout(200);
+const secOk = await page.evaluate(() => {
+  const t = document.body.innerText;
+  return t.includes('修改密码') && t.includes('退出当前设备') && t.includes('注销账号');
+});
+assert('账号安全 Tab 含「改密/退出设备/注销」', secOk);
 await page.locator('.acct-x').click();
 await page.waitForTimeout(150);
 

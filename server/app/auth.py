@@ -181,7 +181,7 @@ def _new_session(user_id):
 
 @router.post('/register')
 def register(req: RegisterReq, request: Request):
-    rate_limit(request, 'register', 5, 60)
+    rate_limit(request, 'register', 8, 60)
     uname = auth_db.normalize_username(req.username)
     if not _valid_user(uname):
         raise HTTPException(400, '用户名须为 3-7 位（字母、数字、下划线或中文）')
@@ -241,6 +241,13 @@ def me(request: Request):
     if not user:
         return {'authenticated': False}
     return {'authenticated': True, 'user': _public_user(user)}
+
+
+@router.get('/me/stats')
+def me_stats(request: Request):
+    """个人战绩：总对局 / 胜率 / 最高分 / 平均名次 + 最近 20 条明细。仅登录可查。"""
+    user = get_current_user(request)
+    return auth_db.get_user_stats(user['id'])
 
 
 @router.put('/me')

@@ -50,6 +50,7 @@ export default class AuthScreen {
 
   async confirmLogout() {
     if (!confirm('确定退出登录吗？你当前所在的房间座位仍会保留（刷新可凭房间身份回到本局）。')) return;
+    this._close();   // 从「账号安全」Tab 触发时把弹层一并收起
     try { await auth.logout(); } catch { /* 忽略 */ }
     auth.clear();
     this.renderBar();
@@ -219,13 +220,47 @@ export default class AuthScreen {
     setTimeout(() => userIn.focus(), 0);
   }
 
-  // ---------------- 个人空间（设置） ----------------
+  // ---------------- 个人空间（设置：资料 / 战绩 / 安全 三 Tab） ----------------
 
   openSettings() {
     if (!auth.isLoggedIn) return this.openLogin();
     const u = auth.user || {};
+    const body = h('div.acct-set-body');
 
-    // 头像选择
+    const tabs = [
+      { id: 'profile', label: '个人资料' },
+      { id: 'stats', label: '战绩统计' },
+      { id: 'security', label: '账号安全' },
+    ];
+    const tabEls = {};
+    const setTab = (name) => {
+      this._statsSeq = (this._statsSeq || 0) + 1;   // 使在途的战绩请求作废，防止晚到响应覆盖新 Tab
+      for (const [id, el] of Object.entries(tabEls)) el.classList.toggle('active', id === name);
+      clear(body);
+      if (name === 'stats') this._renderStats(body);
+      else if (name === 'security') body.appendChild(this._settingsSecurity());
+      else body.appendChild(this._settingsProfile(u));
+    };
+    const tabRow = h('div.auth-tabs.acct-set-tabs', null, ...tabs.map((t) =>
+      tabEls[t.id] = h('div.auth-tab', { onclick: () => setTab(t.id) }, t.label)));
+
+    this._open(h('div', null,
+      h('div.auth-set-head', null,
+        h('span.acct-av.big', { text: u.avatar || AVATARS[0] }),
+        h('div', null,
+          h('div.acct-uname', { text: u.username || '' }),
+          h('div.acct-sub', { text: '个人空间' }),
+        ),
+        h('button.acct-x', { onclick: () => this._close() }, '✕'),
+      ),
+      tabRow,
+      body,
+    ));
+    setTab('profile');
+  }
+
+  /** Tab 1：个人资料（改昵称 + 预设头像）。 */
+  _settingsProfile(u) {
     let pickedAvatar = u.avatar || AVATARS[0];
     const avRow = h('div.acct-avatars', null, ...AVATARS.map((a) =>
       h('span.acct-avopt' + (a === pickedAvatar ? '.sel' : ''), {
@@ -238,7 +273,6 @@ export default class AuthScreen {
 
     const nameIn = h('input.acct-input', { value: u.displayName || '', placeholder: '昵称（最多 16 字）', maxlength: 16 });
 
-    // 资料保存
     const saveProfile = async () => {
       try {
         const r = await auth.updateProfile(nameIn.value.trim(), pickedAvatar);
@@ -248,7 +282,60 @@ export default class AuthScreen {
       } catch (e) { toast(e.message || '保存失败', 'err'); }
     };
 
-    // 修改密码
+    return h('div', null,
+      h('h3.acct-sec', null, '个人资料'),
+      h('div.acct-field', null, nameIn),
+      avRow,
+      h('button.acct-submit', { onclick: saveProfile }, '保存资料'),
+    );
+  }
+
+  /** Tab 2：战绩统计（异步拉取 /me/stats）。 */
+  async _renderStats(body) {
+    const seq = this._statsSeq;
+    body.appendChild(h('div.acct-note', { text: '战绩加载中…' }));
+    let st = null;
+    try { st = await auth.stats(); }
+    catch (e) {
+      if (seq !== this._statsSeq) return;
+      clear(body);
+      body.appendChild(h('div.acct-note.warn', { text: e.message || '战绩加载失败，请稍后重试' }));
+      return;
+    }
+    if (seq !== this._statsSeq) return;   // 已切到别的 Tab，丢弃
+    clear(body);
+    if (!st || !st.total) {
+      body.appendChild(h('div.acct-note', { text: '还没有对局记录。登录状态下完成的对局会自动计入战绩。' }));
+      return;
+    }
+    const fmtDate = (iso) => {
+      if (!iso) return '';
+      const d = new Date(iso + 'Z');      // 后端存 UTC naive 时间，补 Z 再转本地时区
+      const p = (x) => String(x).padStart(2, '0');
+      return d.getFullYear() === new Date().getFullYear()
+        ? `${p(d.getMonth() + 1)}-${p(d.getDate())}`
+        : `${d.getFullYear()}/${p(d.getMonth() + 1)}/${p(d.getDate())}`;
+    };
+    const rows = (st.recent || []).map((r) => h('div.acct-grow' + (r.won ? '.won' : ''), null,
+      h('span.d', { text: `${fmtDate(r.playedAt)} · ${r.playerCount} 人对局` }),
+      h('span.r', { text: `第 ${r.rank} 名` }),
+      h('span.s', { text: `${r.score} 分` }),
+    ));
+    body.appendChild(h('div', null,
+      h('div.acct-stats', null,
+        h('div.acct-stat', null, h('span.k', { text: '总对局' }), h('span.v', { text: String(st.total) })),
+        h('div.acct-stat', null, h('span.k', { text: '胜率' }), h('span.v.win', { text: `${st.winRate}%` })),
+        h('div.acct-stat', null, h('span.k', { text: '最高分' }), h('span.v', { text: st.bestScore == null ? '-' : String(st.bestScore) })),
+        h('div.acct-stat', null, h('span.k', { text: '平均名次' }), h('span.v', { text: st.avgRank == null ? '-' : String(st.avgRank) })),
+      ),
+      h('h3.acct-sec', null, '最近对局'),
+      rows.length ? h('div.acct-glist', null, ...rows) : h('div.acct-note', { text: '暂无明细' }),
+      h('div.acct-note', { text: '仅登录玩家记录战绩；游客身份完成的对局不统计。' }),
+    ));
+  }
+
+  /** Tab 3：账号安全（改密 / 退出当前设备 / 注销账号）。 */
+  _settingsSecurity() {
     const oldP = h('input.acct-input', { type: 'password', placeholder: '原密码', maxlength: 32 });
     const newP = h('input.acct-input', { type: 'password', placeholder: '新密码（6-11 位）', maxlength: 32 });
     const newP2 = h('input.acct-input', { type: 'password', placeholder: '确认新密码', maxlength: 32 });
@@ -264,10 +351,9 @@ export default class AuthScreen {
       } catch (e) { toast(e.message || '修改失败', 'err'); }
     };
 
-    // 注销账号
     const delP = h('input.acct-input', { type: 'password', placeholder: '输入密码确认注销', maxlength: 32 });
     const doDelete = async () => {
-      if (!confirm('注销后账号与所有资料永久删除，且会退出当前房间账号绑定。确定吗？')) return;
+      if (!confirm('注销后账号、资料与战绩永久删除，且会退出当前房间账号绑定。确定吗？')) return;
       try {
         await auth.deleteAccount(delP.value);
         auth.clear();
@@ -278,30 +364,21 @@ export default class AuthScreen {
       } catch (e) { toast(e.message || '注销失败', 'err'); }
     };
 
-    this._open(h('div', null,
-      h('div.auth-set-head', null,
-        h('span.acct-av.big', { text: pickedAvatar }),
-        h('div', null,
-          h('div.acct-uname', { text: u.username || '' }),
-          h('div.acct-sub', { text: '个人空间' }),
-        ),
-        h('button.acct-x', { onclick: () => this._close() }, '✕'),
-      ),
-      h('h3.acct-sec', null, '个人资料'),
-      h('div.acct-field', null, nameIn),
-      h('div.acct-avatars', null, avRow),
-      h('button.acct-submit', { onclick: saveProfile }, '保存资料'),
-
+    return h('div', null,
       h('h3.acct-sec', null, '修改密码'),
       h('div.acct-field', null, oldP),
       h('div.acct-field', null, newP),
       h('div.acct-field', null, newP2),
       h('button.acct-submit', { onclick: doChange }, '修改密码'),
 
+      h('h3.acct-sec', null, '登录设备'),
+      h('div.acct-note', { text: '退出本机的登录状态；房间座位不受影响，刷新后仍可凭房间身份回到对局。' }),
+      h('button.acct-submit', { onclick: () => this.confirmLogout() }, '退出当前设备'),
+
       h('h3.acct-sec.danger', null, '账号注销'),
-      h('div.acct-note.warn', { text: '注销不可恢复；当前房间座位会保留但不再绑定账号。' }),
+      h('div.acct-note.warn', { text: '注销不可恢复；当前房间座位会保留但不再绑定账号，历史战绩一并删除。' }),
       h('div.acct-field', null, delP),
       h('button.acct-submit.danger', { onclick: doDelete }, '注销账号'),
-    ));
+    );
   }
 }
