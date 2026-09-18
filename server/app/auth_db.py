@@ -181,8 +181,8 @@ def get_user_by_username(username):
     un = normalize_username(username)
     if not un:
         return None
+    # 注意：绝不能 s.get(User, un)——那是按主键 id 查，PG 下会因类型不符直接报错
     return _run(lambda s: _user_to_dict(
-        s.get(User, un) if _USE_POSTGRES else
         s.execute(select(User).where(User.username == un)).scalars().first()
     ))
 
