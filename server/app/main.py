@@ -455,6 +455,55 @@ def recover_room(request: Request, body: dict):
     raise HTTPException(404, '你当前不在该房间')
 
 
+# ---------------- 观战（登录用户只读进房，不占座位） ----------------
+
+class SpectateReq(BaseModel):
+    password: str = Field(default='', max_length=32)
+
+
+@app.post('/api/rooms/{room_id}/spectate')
+def spectate(room_id: str, req: SpectateReq, request: Request):
+    """观众进房：必须登录；密码房同样校验密码；同账号幂等（刷新重连复用原 token）。"""
+    rate_limit(request, 'spectate', 10, 60)
+    user = get_current_user(request)
+    room, token, err = rooms.spectate_room(room_id, user, req.password)
+    if err:
+        raise HTTPException(400, err)
+    return {'token': token, 'room': rooms.room_view(room, token)}
+
+
+@app.post('/api/rooms/{room_id}/spectate/leave')
+def spectate_leave(room_id: str, req: TokenReq):
+    rooms.leave_spectate(room_id, req.token)
+    return {'ok': True}
+
+
+# ---------------- 房间聊天（玩家 + 观众共用） ----------------
+
+class ChatReq(TokenReq):
+    text: str = Field(default='', max_length=rooms.CHAT_TEXT_MAX)
+
+
+@app.post('/api/rooms/{room_id}/chat')
+def chat(room_id: str, req: ChatReq, request: Request):
+    """发言：座位 token → 玩家身份（进房名）；观战 token → 观众身份（账号昵称，带【观战】标识）。"""
+    rate_limit(request, 'chat', 8, 10)
+    room = _room_or_404(room_id)
+    seat = rooms.seat_of(room, req.token)
+    if seat:
+        name, role = seat['name'], 'player'
+    else:
+        sp = rooms.spectator_of(room, req.token)
+        if not sp:
+            raise HTTPException(403, '身份无效，请重新加入房间')
+        name, role = sp['name'], 'spectator'
+    text = (req.text or '').strip()
+    if not text:
+        raise HTTPException(400, '消息不能为空')
+    room = rooms.add_chat(room_id, name, role, text)
+    return {'ok': True, 'rev': room['rev']}
+
+
 # ---------------- 状态同步（长轮询） ----------------
 
 @app.get('/api/rooms/{room_id}/state')
@@ -463,10 +512,18 @@ async def room_state(room_id: str, token: str = Query(...), since: str = Query('
     """取房间 + 对局视角状态。
 
     传 since=上次返回的 rev 且 wait>0 时进入长轮询：状态未变则挂起，最多 wait 秒。
+    座位 token → 本人玩家视角；观战 token → 全公开只读视角（所有手牌仅见数量与背面、无合法着法）。
     """
     room = _room_or_404(room_id)
-    seat = _seat_or_403(room, token)
-    rooms.touch(room_id, token)
+    seat = rooms.seat_of(room, token)
+    if seat:
+        rooms.touch(room_id, token)
+        player_id = seat['playerId']
+    elif rooms.spectator_of(room, token):
+        rooms.touch_spectator(room_id, token)
+        player_id = None                      # view_for 对 None 隐藏所有手牌/着法
+    else:
+        raise HTTPException(403, '身份无效，请重新加入房间')
 
     deadline = time.time() + min(max(wait, 0.0), POLL_TIMEOUT_MAX)
     while True:
@@ -476,10 +533,12 @@ async def room_state(room_id: str, token: str = Query(...), since: str = Query('
         st = _game_of(room)
         rev = rooms.rev_of(room, st)
         if rev != since or time.time() >= deadline:
-            seat = rooms.seat_of(room, token) or seat
+            if player_id is not None:
+                seat = rooms.seat_of(room, token) or seat
+                player_id = seat['playerId']
             return {'rev': rev, 'changed': rev != since,
                     'room': rooms.room_view(room, token),
-                    'state': rooms.view_for(st, seat['playerId']) if st else None}
+                    'state': rooms.view_for(st, player_id) if st else None}
         await asyncio.sleep(POLL_INTERVAL)
 
 

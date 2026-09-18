@@ -75,6 +75,8 @@ export class Session {
   get inGame() { return !!(this.state && this.room?.status !== 'lobby'); }
   /** 机器人陪练房：房内有服务端机器人，可用作弊补给。 */
   get isBotRoom() { return !!this.room?.bot; }
+  /** 观战身份（服务端 room_view 下发）：只读视角，不可行动。 */
+  get isSpectator() { return !!this.room?.iAmSpectator; }
 
   _persist() {
     saveSaved(this.roomId && this.token
@@ -117,16 +119,36 @@ export class Session {
     return r.room;
   }
 
+  /** 观战进房（必须登录）：token 只读，视角 = 全公开（所有手牌仅背面/数量）。 */
+  async spectate(roomId, password = '') {
+    const r = await api.spectate(roomId, password);
+    this.roomId = r.room.roomId;
+    this.token = r.token;
+    this.playerName = '';
+    this._persist();
+    this._adopt(r);
+    this.startPolling();
+    return r.room;
+  }
+
   async leaveRoom() {
     this.stopPolling();
     if (this.roomId && this.token) {
-      try { await api.leaveRoom(this.roomId, this.token); } catch { /* 房间可能已解散 */ }
+      try {
+        if (this.isSpectator) await api.leaveSpectate(this.roomId, this.token);
+        else await api.leaveRoom(this.roomId, this.token);
+      } catch { /* 房间可能已解散 */ }
     }
     this.roomId = this.token = null;
     this.room = this.state = null;
     this.rev = '';
     this._persist();
     this.emit('update', this);
+  }
+
+  /** 房间发言（玩家用进房名、观众用账号昵称并带【观战】标识，由服务端判定）。 */
+  async chat(text) {
+    return api.chat(this.roomId, this.token, text);
   }
 
   async setReady(ready) {

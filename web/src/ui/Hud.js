@@ -68,6 +68,9 @@ export default class Hud {
     this.nodes.plog = h('div#plog', null, h('div.hd', null, '对局日志'), h('div.bd'));
     this.nodes.right.appendChild(this.nodes.ppanels);
     this.nodes.right.appendChild(this.nodes.plog);
+    // 房间聊天挂载点（ChatPanel 实例由 app 搬移到这里，输入行持久不丢草稿）
+    this.nodes.chatdock = h('div.chatdock-slot');
+    this.nodes.right.appendChild(this.nodes.chatdock);
     // 玩家面板列缩放按钮（＋/－）：与地图 #zoomctl 同手感，仅缩放 #ppanels 内容，
     // 不影响 #rightcol 宽度，故顶部/手牌/地图等独立绝对定位元素不会被挤压或移位。
     this.nodes.pzval = h('span.pzval', null, '×1.0');
@@ -173,6 +176,9 @@ export default class Hud {
     this.state = state;
     this.room = room;
     if (!this.mounted) return;
+    // 观战模式：隐藏整个手牌区（内含行动向导条，观众永远不会触发向导）
+    const spec = !!room?.iAmSpectator;
+    if (this.nodes.hand) this.nodes.hand.style.display = spec ? 'none' : '';
     this._renderTop();
     this._renderPlayers();
     this._renderLog();
@@ -334,13 +340,19 @@ export default class Hud {
       h('span.k', null, this.online ? '已连接' : '重连中'),
       this.room ? h('span.k', null, `· ${this.room.roomId}`) : null,
     ));
+    // 观战身份标识（只读，不可行动）
+    if (this.room?.iAmSpectator) {
+      el.appendChild(h('div.sep'));
+      el.appendChild(h('div.seg', null, h('span.spec-badge', null, '观战中')));
+    }
     el.appendChild(h('button.sm.ghost', { onclick: () => this.deps.onRefresh?.() }, '刷新'));
     // 作弊按钮仅用于本地机器人房调试，正式上线前隐藏
     // if (this.room?.bot) {
     //   el.appendChild(h('button.sm.ghost', { onclick: () => this.deps.onCheat?.('money', 20) }, '＋£20'));
     //   el.appendChild(h('button.sm.ghost', { onclick: () => this.deps.onCheat?.('ap', 1) }, '＋1行动点'));
     // }
-    el.appendChild(h('button.sm.ghost', { onclick: () => this.deps.onLeave?.() }, '离开'));
+    el.appendChild(h('button.sm.ghost', { onclick: () => this.deps.onLeave?.() },
+      this.room?.iAmSpectator ? '退出观战' : '离开'));
   }
 
   _renderHand() {
@@ -446,6 +458,16 @@ export default class Hud {
         isMe ? h('span.me', null, '我') : null,
         h('span.stat', null, `${money(p.money)} · 收入 ${inc == null ? '-' : inc} · 连接 ${p.remainingLinks ?? '-'} · VP ${vp}`),
       ));
+      // 观战模式：每个玩家面板显示其手牌牌背（数量 = handCount，牌面一律不可见）
+      if (this.room?.iAmSpectator) {
+        const n = p.handCount ?? 0;
+        panel.appendChild(h('div.phand', null,
+          h('span.phand-k', null, `手牌 ${n}`),
+          h('div.phand-backs', null, ...Array.from({ length: n }, () =>
+            h('img.pback', { src: 'assets/markers/hand_card_back.jpg', alt: '牌背', draggable: 'false' }),
+          )),
+        ));
+      }
       // 必须先挂到 DOM，.pboard 的 width:100% 才能获得真实可用宽度；
       // 若先 renderBoard 再 append，board.clientWidth 为 0，会误用 this.panelW 默认值，
       // 导致 board 高度按 286px 计算而实际宽度 268px，宽高比失调、底图拉伸、tile 视觉上偏上。
@@ -574,6 +596,11 @@ export default class Hud {
     const el = this.nodes.topActions; if (!el) return;
     clear(el);
     const st = this.state; if (!st) return;
+    // 观战模式：不下发任何操作入口（服务端也已清空 buttonEnabled/合法着法）
+    if (this.room?.iAmSpectator) {
+      el.appendChild(h('div.hintline', null, '观战模式：你只能观看，不能操作'));
+      return;
+    }
     const be = st.buttonEnabled || {};
     const mine = !!st.isMyTurn;
 

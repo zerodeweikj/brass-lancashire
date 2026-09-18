@@ -4,7 +4,7 @@
  */
 import { h, clear, toast } from './dom.js';
 import { PLAYER_CSS, PLAYER_CN } from '../game/mappings.js';
-import { API_BASE } from '../net/api.js';
+import { API_BASE, auth } from '../net/api.js';
 import { openFeedback } from './Feedback.js';
 
 const LS_NAME = 'lancashire.playerName';
@@ -136,6 +136,15 @@ export default class Lobby {
         }
       }
     });
+    // 观战（必须登录；密码房同样要密码；不占座位、只读视角）
+    const spectateById = (rid, requirePwd = false) => this.guard(async () => {
+      let pwd = '';
+      if (requirePwd) {
+        pwd = await this._askPassword('观战「' + rid + '」需要密码');
+        if (pwd === null) return;  // 取消
+      }
+      await this.session.spectate(rid, pwd);
+    });
 
     let list;
     if (this.rooms === null) {
@@ -149,12 +158,20 @@ export default class Lobby {
             r.hasPassword ? h('span.lock', { title: '需密码' }, '🔒') : null,
             r.name),
           h('div.rm', null, `${r.roomId} · ${r.seatCount}/${r.maxSeats} 人 · ${
-            r.status === 'lobby' ? '等待中' : r.status === 'playing' ? '进行中' : '已结束'}`),
+            r.status === 'lobby' ? '等待中' : r.status === 'playing' ? '进行中' : '已结束'}${
+            r.spectatorCount ? ` · ${r.spectatorCount} 人观战` : ''}`),
         ),
-        h('button.sm', {
-          disabled: this.busy || r.status !== 'lobby' || r.seatCount >= r.maxSeats,
-          onclick: () => joinById(r.roomId, r.hasPassword),
-        }, '加入'),
+        h('div.rbtns', null,
+          h('button.sm', {
+            disabled: this.busy || r.status !== 'lobby' || r.seatCount >= r.maxSeats,
+            onclick: () => joinById(r.roomId, r.hasPassword),
+          }, '加入'),
+          h('button.sm.ghost', {
+            disabled: this.busy || !auth.isLoggedIn,
+            title: auth.isLoggedIn ? '只读观看本房间（不占座位）' : '登录后可观战',
+            onclick: () => spectateById(r.roomId, r.hasPassword),
+          }, '观战'),
+        ),
       )));
     }
 
@@ -230,6 +247,7 @@ export default class Lobby {
 
   _seatView() {
     const room = this.session.room;
+    if (this.session.isSpectator) return this._spectatorView(room);
     const seats = room.seats || [];
     const me = seats.find((s) => s.isMe);
     const allReady = seats.length >= 2 && seats.every((s) => s.ready);
@@ -282,6 +300,48 @@ export default class Lobby {
         h('code', null, room.roomId),
         ' 加入即可。',
       ),
+      // 房间聊天挂载点（ChatPanel 实例由 app 搬移到这里，消息区持久不丢草稿）
+      this.chatDockEl = h('div.chatdock-slot'),
+    );
+  }
+
+  // ---------------- 观战等待视图（对局未开始；开局后 app.sync 自动切到对局 HUD） ----------------
+
+  _spectatorView(room) {
+    const seats = room.seats || [];
+    const specs = room.spectators || [];
+    return h('div.box.panel', null,
+      h('h1', null, room.name),
+      h('div.sub', null,
+        `房间号 ${room.roomId} · ${seats.length}/${room.maxSeats} 人 · `,
+        h('span.spec-badge', null, '观战中'),
+        ' · 等待开局',
+      ),
+      h('div.seats', null,
+        ...seats.map((s) => {
+          const av = s.avatar || (s.isBot ? '🤖' : '');
+          return h('div.seat', { style: { borderLeftColor: PLAYER_CSS[s.color] || '#888' } },
+            h('div.nm', null, av ? h('span.sv-av', { text: av }) : null, `${s.name}`),
+            h('div.tag', null, `${PLAYER_CN[s.color] || s.color}方 · ${s.playerId}`),
+            h('div.tag' + (s.ready ? '.ready' : ''), null, s.ready ? '已准备' : '未准备'),
+          );
+        }),
+      ),
+      specs.length ? h('div.spec-list', null,
+        h('div.tag', null, `观众（${specs.length}）`),
+        h('div.spec-names', null, specs.map((sp) =>
+          h('span.spec-name' + (sp.isMe ? '.me' : ''), null,
+            sp.avatar ? h('span.sv-av', { text: sp.avatar }) : null,
+            (sp.name || '观众') + (sp.isMe ? '（你）' : '')),
+        )),
+      ) : null,
+      h('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' } },
+        h('button.warn', {
+          disabled: this.busy,
+          onclick: () => this.guard(() => this.session.leaveRoom()),
+        }, '退出观战'),
+      ),
+      this.chatDockEl = h('div.chatdock-slot'),
     );
   }
 }

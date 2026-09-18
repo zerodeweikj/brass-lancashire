@@ -48,8 +48,19 @@ async function request(method, path, { body, params, signal } = {}) {
   let data = null;
   try { data = text ? JSON.parse(text) : null; } catch { data = text; }
   if (!res.ok) {
-    const msg = (data && (data.detail || data.message)) || `HTTP ${res.status}`;
-    throw new ApiError(typeof msg === 'string' ? msg : JSON.stringify(msg), res.status, data);
+    let msg = (data && (data.detail || data.message)) || `HTTP ${res.status}`;
+    if (Array.isArray(msg)) {
+      // Pydantic 422：detail 是错误数组，翻成人类可读的一句话
+      msg = msg.map((e) => {
+        if (e && e.type === 'string_too_long') return `内容过长（最多 ${e.ctx?.max_length} 字）`;
+        if (e && e.type === 'string_too_short') return `内容过短（至少 ${e.ctx?.min_length} 字）`;
+        if (e && e.type === 'missing') return `缺少字段：${(e.loc || []).join('.')}`;
+        return e && e.msg ? e.msg : JSON.stringify(e);
+      }).join('；');
+    } else if (typeof msg !== 'string') {
+      msg = JSON.stringify(msg);
+    }
+    throw new ApiError(msg, res.status, data);
   }
   return data;
 }
@@ -63,6 +74,11 @@ export const api = {
     request('POST', '/api/rooms', { body: { roomName, playerName, withBot: !!withBot, password: password || '' } }),
   joinRoom: (roomId, playerName, password = '') => request('POST', `/api/rooms/${roomId}/join`, { body: { playerName, password: password || '' } }),
   leaveRoom: (roomId, token) => request('POST', `/api/rooms/${roomId}/leave`, { body: { token } }),
+  /** 观战（必须登录；密码房同样要密码）：返回 { token, room }，token 只读。 */
+  spectate: (roomId, password = '') => request('POST', `/api/rooms/${roomId}/spectate`, { body: { password: password || '' } }),
+  leaveSpectate: (roomId, token) => request('POST', `/api/rooms/${roomId}/spectate/leave`, { body: { token } }),
+  /** 房间聊天（座位 token 或观战 token 均可；单条上限 200 字）。 */
+  chat: (roomId, token, text) => request('POST', `/api/rooms/${roomId}/chat`, { body: { token, text } }),
   setReady: (roomId, token, ready) => request('POST', `/api/rooms/${roomId}/ready`, { body: { token, ready } }),
   start: (roomId, token, seed) => request('POST', `/api/rooms/${roomId}/start`, { body: { token, seed: seed ?? null } }),
   restart: (roomId, token) => request('POST', `/api/rooms/${roomId}/restart`, { body: { token } }),

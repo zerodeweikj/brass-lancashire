@@ -13,6 +13,7 @@ import Lobby from './ui/Lobby.js';
 import Hud from './ui/Hud.js';
 import LoadingScreen from './ui/LoadingScreen.js';
 import AuthScreen from './ui/AuthScreen.js';
+import ChatPanel from './ui/ChatPanel.js';
 import session from './net/session.js';
 import api, { auth } from './net/api.js';
 import { MAT_KEY_CN, PLAYER_CSS, ACTION_CN } from './game/mappings.js';
@@ -63,6 +64,8 @@ export default class App {
       onLoggedOut: () => this.onLoggedOut(),
       onOverlayChange: (open) => this.setAuthOpen(open),
     });
+    // 房间聊天（玩家+观众共用；持久实例，随布局在大厅/对局两处挂载点间搬移）
+    this.chat = new ChatPanel(this.session);
   }
 
   /** 账号弹层打开时禁用 Phaser 地图点击，防事件穿透（与 Modal / 行动向导条共用同一开关）。 */
@@ -172,6 +175,9 @@ export default class App {
       this.hud.mount();
       this.hud.update(s.state, s.room);
       this.scene?.setState(s.state);
+      // 房间聊天挂到右栏挂载点（观战模式同样可用）
+      this.chat.mount(this.hud.nodes.chatdock);
+      this.chat.update();
       // HUD 挂载后把当前滚动状态推给滚动条（默认整图可见 → 滚动条置灰禁用）。
       if (this.hud.mounted) this.scene?._notifyScroll?.();
       // 刷新/断线重连后，若服务端还挂着待补市场状态 → 重新弹出选择（防向导条丢失）
@@ -204,6 +210,13 @@ export default class App {
       if (!this.lobby.mounted) this.lobby.mount();
       else this.lobby.render();
       this.lastGameOverShown = false;
+      // 大厅内已进房（含观战等待）：聊天挂到大厅挂载点；未进房则收起
+      if (s.inRoom && this.lobby.chatDockEl) {
+        this.chat.mount(this.lobby.chatDockEl);
+        this.chat.update();
+      } else {
+        this.chat.unmount();
+      }
       // 玩家点准备后、房主开局前：显示 BGA 风格等待画面
       this._syncLoadingScreen();
     }
@@ -231,6 +244,8 @@ export default class App {
           this.session.setReady(false).catch((e) => toast(e.message, 'err'));
         },
       });
+      // 等待画面盖住大厅期间，把房间聊天搬到遮罩之上（否则房主开局即 ready，永远点不到发送）
+      if (this.loading.chatEl) this.chat.mount(this.loading.chatEl);
       // 房主在全部准备后需要能从等待画面直接开局
       if (isHost && allReady) {
         this.loading.setActions?.([
@@ -246,7 +261,9 @@ export default class App {
   }
 
   async leave() {
-    if (!confirm('确定离开房间吗？对局进度会保留在服务器上；若只是意外断线或刷新页面，重开本页会凭本地身份自动回到本局（无需房主同意）。主动离开则会释放你的座位。')) return;
+    if (this.session.isSpectator) {
+      if (!confirm('确定退出观战吗？再次观战可随时从大厅房间列表进入。')) return;
+    } else if (!confirm('确定离开房间吗？对局进度会保留在服务器上；若只是意外断线或刷新页面，重开本页会凭本地身份自动回到本局（无需房主同意）。主动离开则会释放你的座位。')) return;
     this.cancelFlow();
     await this.session.leaveRoom();
     this.sync();

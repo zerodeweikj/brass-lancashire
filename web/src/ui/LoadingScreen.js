@@ -66,6 +66,8 @@ export default class LoadingScreen {
               ? h('button.ls-cancel', { onclick: () => this._onCancelReady?.() }, '取消准备')
               : null,
           ),
+          // 聊天挂载点：等待画面盖住大厅时，房间聊天搬到遮罩之上（房主开局即 ready，必须能聊天）
+          (this.chatEl = h('div.ls-chatdock')),
         ),
       ),
     );

@@ -14,6 +14,9 @@ from . import auth_db, db
 
 COLORS = ['red', 'yellow', 'white', 'purple']
 MAX_SEATS = 4
+MAX_SPECTATORS = 20       # 单房观众上限：长轮询每观众≈1 连接+每次变更 1 份视角 JSON，免费档稳载 ~100 并发
+MAX_CHAT_MESSAGES = 100   # 房间内聊天保留最近 N 条（ring buffer）
+CHAT_TEXT_MAX = 200       # 单条聊天字数上限
 STALE_SECS = 90  # 座位 lastSeen 超过此时长判定为掉线离开
 _lock = threading.RLock()
 
@@ -137,6 +140,7 @@ def gc_rooms():
     with _lock:
         for room in db.list_rooms():
             room_id = room['roomId']
+            gc_spectators(room)   # 掉线观众随时清（房间被删时观众随房间一起消失）
             seats = room.get('seats', [])
             alive = [s for s in seats
                      if s.get('isBot') or time.time() - s.get('lastSeen', 0) < STALE_SECS]
@@ -194,6 +198,100 @@ def seat_of(room, token):
     return None
 
 
+# ---------------- 观战（不占座位，只读视角，必须登录） ----------------
+
+def spectate_room(room_id, user, password=''):
+    """观众进房：返回 (room, token, err)；失败时前两项为 None。
+
+    观众不占座位（不破坏引擎 P1..P4 映射），身份 = 登录账号昵称。
+    同账号重复观战幂等返回原 token（刷新/重连不重复占观众席）。
+    """
+    with _lock:
+        room = db.load_room(room_id)
+        if not room:
+            return None, None, '房间不存在或已解散'
+        for s in room.get('seats', []):
+            if s.get('userId') == user['id']:
+                return None, None, '你已在该房间对局中'
+        for sp in room.get('spectators', []):
+            if sp.get('userId') == user['id']:
+                return room, sp['token'], None     # 幂等重连
+        if room.get('password') and password != room['password']:
+            return None, None, '房间密码错误'
+        spectators = room.setdefault('spectators', [])
+        if len(spectators) >= MAX_SPECTATORS:
+            return None, None, '观众席已满（最多 %d 人）' % MAX_SPECTATORS
+        token = secrets.token_urlsafe(16)
+        spectators.append({'token': token, 'userId': user['id'],
+                           'name': (user.get('displayName') or user.get('username') or '观众')[:16],
+                           'lastSeen': time.time()})
+        room['rev'] += 1
+        db.save_room(room_id, room)
+        return room, token, None
+
+
+def spectator_of(room, token):
+    for sp in room.get('spectators', []):
+        if sp['token'] == token:
+            return sp
+    return None
+
+
+def leave_spectate(room_id, token):
+    with _lock:
+        room = db.load_room(room_id)
+        if not room:
+            return None
+        before = len(room.get('spectators', []))
+        room['spectators'] = [sp for sp in room.get('spectators', []) if sp['token'] != token]
+        if len(room['spectators']) != before:
+            room['rev'] += 1
+            db.save_room(room_id, room)
+        return room
+
+
+def touch_spectator(room_id, token):
+    """观众心跳（不改 rev，不触发广播）。"""
+    with _lock:
+        room = db.load_room(room_id)
+        if not room:
+            return
+        changed = False
+        for sp in room.get('spectators', []):
+            if sp['token'] == token and time.time() - sp.get('lastSeen', 0) > 5:
+                sp['lastSeen'] = time.time()
+                changed = True
+        if changed:
+            db.save_room(room_id, room)
+
+
+def gc_spectators(room):
+    """清掉线观众（座位仍按原 gc_rooms 规则处理）。调用方须已持有房间 dict。"""
+    specs = room.get('spectators', [])
+    alive = [sp for sp in specs if time.time() - sp.get('lastSeen', 0) < STALE_SECS]
+    if len(alive) != len(specs):
+        room['spectators'] = alive
+        room['rev'] += 1
+        db.save_room(room['roomId'], room)
+
+
+# ---------------- 房间聊天（玩家 + 观众共用；大厅等待阶段也可用） ----------------
+
+def add_chat(room_id, name, role, text):
+    """追加一条聊天（role: player/spectator），rev+1 触发长轮询广播给全房间。"""
+    with _lock:
+        room = db.load_room(room_id)
+        if not room:
+            return None
+        msgs = room.setdefault('chatMsgs', [])
+        msgs.append({'from': (name or '玩家')[:16], 'role': role,
+                     'text': text[:CHAT_TEXT_MAX], 'ts': time.time()})
+        del msgs[:-MAX_CHAT_MESSAGES]
+        room['rev'] += 1
+        db.save_room(room_id, room)
+        return room
+
+
 # ---------------- 座位头像（登录玩家带自己的账号头像进对局） ----------------
 
 _AVATAR_TTL = 60.0                 # 头像缓存秒数：长轮询高频调 room_view，不能每次都打账号库
@@ -236,6 +334,7 @@ def public_room(room):
                      'online': bool(s.get('isBot')) or time.time() - s.get('lastSeen', 0) < 30}
                     for s in room['seats']],
         'seatCount': len(room['seats']), 'maxSeats': MAX_SEATS,
+        'spectatorCount': len(room.get('spectators', [])),
         'createdAt': room.get('createdAt'),
     }
 
@@ -258,6 +357,16 @@ def room_view(room, token):
                    'isMe': s['token'] == token}
                   for s in room['seats']],
         'maxSeats': MAX_SEATS,
+        # 观众席（头像走同一 TTL 缓存；观众也是登录用户）
+        'spectators': [{'name': sp['name'], 'avatar': seat_avatar(sp),
+                        'online': time.time() - sp.get('lastSeen', 0) < 30,
+                        'isMe': sp['token'] == token}
+                       for sp in room.get('spectators', [])],
+        'iAmSpectator': bool(me is None and spectator_of(room, token)),
+        'maxSpectators': MAX_SPECTATORS,
+        # 房间聊天（玩家+观众共用，ring buffer 由 add_chat 维护）
+        'chatMsgs': [{'from': m['from'], 'role': m['role'], 'text': m['text'], 'ts': m['ts']}
+                     for m in room.get('chatMsgs', [])],
     }
 
 
