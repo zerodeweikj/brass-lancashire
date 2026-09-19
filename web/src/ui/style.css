@@ -3,7 +3,8 @@
    只有真正的面板/按钮接收事件，避免遮挡地图交互。 */
 
 :root {
-  --bg: #10151c;
+  /* 中性兜底（深灰）：既不在大厅也不在游戏里时不闪白/不闪黑 */
+  --bg: #14181f;
   --panel: #141a22;          /* 全不透明：手牌/玩家面板是实体占位，不透底 */
   --panel-2: #1c242e;
   --line: rgba(255, 255, 255, 0.14);
@@ -15,9 +16,27 @@
   --font: 'Microsoft YaHei', 'PingFang SC', system-ui, sans-serif;
 }
 
+/* 平台壳（zero 的桌游空间）：暖白 + 墨绿，与各游戏主题形成反差 */
+body.theme-platform {
+  --bg: #F6F3EE;
+  --panel: #FFFFFF;
+  --panel-2: #F0EDE6;
+  --line: rgba(28, 27, 25, 0.14);
+  --text: #1C1B19;
+  --muted: #6B6459;
+  --accent: #1F6F5C;
+  --accent-2: #D9A54A;
+  --danger: #D85A30;
+}
+
 * { box-sizing: border-box; }
 
-body { font-family: var(--font); color: var(--text); }
+body {
+  font-family: var(--font);
+  color: var(--text);
+  background: var(--bg);
+  transition: background-color .6s ease, color .6s ease;
+}
 
 #ui {
   position: fixed;

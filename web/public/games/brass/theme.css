@@ -1,0 +1,14 @@
+/* 工业革命·兰开夏 专属主题变量。
+   选择器挂 body.theme-brass：进入该游戏时由 theme.js::setTheme('brass') 加类。
+   值 = 平台化之前 :root 的原样（深色工业风），与平台壳暖白形成反差。 */
+body.theme-brass {
+  --bg: #10151c;
+  --panel: #141a22;
+  --panel-2: #1c242e;
+  --line: rgba(255, 255, 255, 0.14);
+  --text: #e9edf3;
+  --muted: #9aa6b5;
+  --accent: #6fd08c;
+  --accent-2: #ffd479;
+  --danger: #ff6b6b;
+}
