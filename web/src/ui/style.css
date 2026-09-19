@@ -473,7 +473,7 @@ input:focus, select:focus { border-color: var(--accent); }
   position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
   pointer-events: auto;
-  background: url('/assets/cover.webp') center/cover no-repeat;
+  background: var(--game-cover, url('/assets/cover.webp')) center/cover no-repeat;
 }
 #lobby::before {
   content: '';
@@ -980,3 +980,11 @@ input:focus, select:focus { border-color: var(--accent); }
 @media (prefers-reduced-motion: reduce) {
   #stage-transition, #stage-transition * { transition-duration: 150ms !important; }
 }
+
+/* Lobby 顶部「返回桌游大厅」入口 */
+.lobby-backhub { position: fixed; top: 10px; left: 12px; z-index: 30; pointer-events: auto; }
+.lobby-backhub .ghost { opacity: .75; }
+.lobby-backhub .ghost:hover { opacity: 1; }
+
+/* 大厅顶栏右侧避让固定定位的账号条 */
+@media (min-width: 720px) { .gh-top { padding-right: 160px; } }

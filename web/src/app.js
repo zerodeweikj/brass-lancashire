@@ -10,13 +10,18 @@
 import { h, toast, money } from './ui/dom.js';
 import Modal from './ui/Modal.js';
 import Lobby from './ui/Lobby.js';
+import GameHub from './ui/GameHub.js';
 import Hud from './ui/Hud.js';
 import LoadingScreen from './ui/LoadingScreen.js';
 import AuthScreen from './ui/AuthScreen.js';
 import ChatPanel from './ui/ChatPanel.js';
+import Transition from './ui/Transition.js';
+import { setTheme } from './ui/theme.js';
 import session from './net/session.js';
 import api, { auth } from './net/api.js';
 import { MAT_KEY_CN, PLAYER_CSS, ACTION_CN } from './game/mappings.js';
+
+const LS_NAME = 'lancashire.playerName';
 
 const pairKey = (a, b) => [a, b].sort().join('|');
 
@@ -39,6 +44,15 @@ export default class App {
     // 任一打开即禁用地图点击，全部关闭才恢复。
     this.modal.onOpenChange = () => this._syncMapInput();
     this.lobby = new Lobby(this.host, session);
+    // 平台大厅（选游戏）：点击后的动效与路由回本类处理
+    this.hub = new GameHub(this.host, session, {
+      onEnterGame: (m, cardEl) => this.enterGameLobby(m, cardEl),
+      onAiRoom: (m, cardEl) => this.enterAiRoom(m, cardEl),
+      onJoinedRoom: (room) => this.onJoinedFromHub(room),
+      onOpenAuth: () => this.authScreen.openLogin(),
+    });
+    this._entering = false;   // 进场动效进行中（过渡层已吃点击，这里是双保险）
+    this.lobby.onExitToHub = () => this.exitToHub();
     this.loading = new LoadingScreen(this.host);
     this.hud = new Hud(this.host, {
       onAction: (k, arg) => this.startFlow(k, arg),
@@ -108,8 +122,10 @@ export default class App {
   // ---------------- 启动 ----------------
 
   async boot() {
+    // 进站落点：未进房 → 平台大厅（选游戏）；有房间身份（刷新重连）→ 直接房间大厅。
     // 大厅立即挂载，用户无需等待 Phaser 场景就绪（场景注册是异步的）。
-    this.lobby.mount();
+    if (this.session.inRoom) this.lobby.mount();
+    else { setTheme(null); this.hub.mount(); }
 
     // 启动判态：本地有登录 token 则恢复账号（刷新页面不掉登录）
     this.restoreAuth();
@@ -171,7 +187,9 @@ export default class App {
 
     if (playing) {
       this.loading.hide();
+      if (this.hub.mounted) this.hub.unmount();
       if (this.lobby.mounted) this.lobby.unmount();
+      setTheme(s.gameId || s.room?.gameId || 'brass');
       this.hud.mount();
       this.hud.update(s.state, s.room);
       this.scene?.setState(s.state);
@@ -205,8 +223,11 @@ export default class App {
       // 轮到别人时清掉残留的选择态
       if (!s.state.isMyTurn && this.flow) this.cancelFlow();
       this.checkGameOver(s.state);
-    } else {
+    } else if (s.inRoom || s.gameId) {
+      // 游戏房间列表层（含已进房）：挂该游戏主题
       if (this.hud.mounted) { this.hud.unmount(); this.scene?.setState(null); }
+      if (this.hub.mounted) this.hub.unmount();
+      setTheme(s.gameId || s.room?.gameId || 'brass');
       if (!this.lobby.mounted) this.lobby.mount();
       else this.lobby.render();
       this.lastGameOverShown = false;
@@ -219,6 +240,15 @@ export default class App {
       }
       // 玩家点准备后、房主开局前：显示 BGA 风格等待画面
       this._syncLoadingScreen();
+    } else {
+      // 平台大厅（选游戏）：暖白壳
+      if (this.hud.mounted) { this.hud.unmount(); this.scene?.setState(null); }
+      if (this.lobby.mounted) this.lobby.unmount();
+      this.loading.hide();
+      this.chat.unmount();
+      setTheme(null);
+      if (!this.hub.mounted) this.hub.mount();
+      this.lastGameOverShown = false;
     }
   }
 
@@ -267,6 +297,69 @@ export default class App {
     this.cancelFlow();
     await this.session.leaveRoom();
     this.sync();
+  }
+
+  // ---------------- 平台大厅路由（GameHub ↔ 房间列表） ----------------
+
+  /** 大厅点「进入游戏」：封面推近动效 → 落到该游戏房间列表。 */
+  async enterGameLobby(manifest, cardEl) {
+    if (this._entering) return;
+    this._entering = true;
+    try {
+      this.session.gameId = manifest.gameId;
+      await Transition.enterGame(cardEl, manifest);   // resolve 时过渡层已遮满
+      this.sync();                                    // 过渡层下 mount 房间列表
+    } finally {
+      this._entering = false;
+    }
+  }
+
+  /** 大厅点「AI 陪练房」：动效 → 直接建该游戏的机器人陪练房并进房（游客可用）。 */
+  async enterAiRoom(manifest, cardEl) {
+    if (this._entering) return;
+    this._entering = true;
+    try {
+      const name = (auth.user?.displayName || localStorage.getItem(LS_NAME) || '').trim()
+        || `玩家${Math.floor(Math.random() * 90 + 10)}`;
+      localStorage.setItem(LS_NAME, name);
+      this.session.gameId = manifest.gameId;
+      await Transition.enterGame(cardEl, manifest);
+      await this.session.createRoom('', name, true, '', manifest.gameId);
+      // createRoom 内部 _adopt 会 emit update → sync 落到已进房的房间大厅
+    } catch (e) {
+      toast(e.message || '创建陪练房失败', 'err');
+      this.sync();
+    } finally {
+      this._entering = false;
+    }
+  }
+
+  /** 大厅顶栏房号加入成功：落到该房间所属游戏的房间列表。 */
+  async onJoinedFromHub(room) {
+    const gid = room?.gameId || 'brass';
+    this.session.gameId = gid;
+    let manifest = null;
+    try { manifest = (await this.session.games()).find((g) => g.gameId === gid) || null; } catch { /* 用纯色降级 */ }
+    if (manifest) await Transition.enterGame(null, manifest);   // 无卡片起点 → 纯色淡入
+    else setTheme(gid);
+    this.sync();
+  }
+
+  /** 房间列表顶部「返回大厅」：离开房间（如有）→ 反向过渡 → 平台大厅。 */
+  async exitToHub() {
+    if (this._entering) return;
+    if (this.session.inRoom) {
+      await this.leave();                  // 内含 confirm；用户取消则留在房间
+      if (this.session.inRoom) return;
+    }
+    this._entering = true;
+    try {
+      this.session.gameId = '';
+      await Transition.exitToLobby();
+      this.sync();
+    } finally {
+      this._entering = false;
+    }
   }
 
   get state() { return this.session.state; }

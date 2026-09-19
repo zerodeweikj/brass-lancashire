@@ -11,4 +11,6 @@ body.theme-brass {
   --accent: #6fd08c;
   --accent-2: #ffd479;
   --danger: #ff6b6b;
+  /* 房间列表层背景 = 本游戏封面（各游戏的美术绝不共用，由各自 theme.css 提供） */
+  --game-cover: url('/games/brass/cover.webp');
 }

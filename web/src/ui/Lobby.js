@@ -70,6 +70,9 @@ export default class Lobby {
   render() {
     if (!this.root) return;
     clear(this.root);
+    // 平台大厅回退入口（未进房/已进房都显示；已进房点击会先 confirm 离房）
+    this.root.appendChild(h('div.lobby-backhub', null,
+      h('button.ghost', { onclick: () => this.onExitToHub?.() }, '← 返回桌游大厅')));
     this.root.appendChild(this.session.inRoom && this.session.room
       ? this._seatView()
       : this._entryView());
@@ -106,7 +109,8 @@ export default class Lobby {
     const create = () => this.guard(async () => {
       const nm = pickName();
       this.name = nm; localStorage.setItem(LS_NAME, nm);
-      await this.session.createRoom(this.roomName.trim(), nm, !!this.withBot, this.roomPwd.trim());
+      await this.session.createRoom(this.roomName.trim(), nm, !!this.withBot, this.roomPwd.trim(),
+        this.session.gameId || 'brass');
     });
     const joinById = (rid, requirePwd = false) => this.guard(async () => {
       const nm = pickName();
