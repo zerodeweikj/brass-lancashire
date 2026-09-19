@@ -45,3 +45,4 @@ slot_detect_report.json
 # 端到端测试截图产物
 web/tests/*.png
 
+server/uvicorn_8765.log

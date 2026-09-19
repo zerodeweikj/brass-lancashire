@@ -1,8 +1,0 @@
-INFO:     Started server process [157924]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://0.0.0.0:8765 (Press CTRL+C to quit)
-[auth] 警告：未设置 DATABASE_URL，账号库回退到本地 SQLite -> D:\zhuoyou\lancashire\server\auth.db
-[auth] 警告：Render 等云平台磁盘为临时盘，重启/重新部署即清空，账号会全部丢失！
-[auth] 请务必在 Render 控制台配置 DATABASE_URL（Neon Postgres 连接串）。
-INFO:     127.0.0.1:52991 - "GET /api/health HTTP/1.1" 200 OK
