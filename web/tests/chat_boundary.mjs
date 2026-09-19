@@ -18,7 +18,11 @@ const PW = 'abc123';
 async function newPage() {
   const ctx = await browser.newContext({ viewport: { width: 1600, height: 900 } });
   const page = await ctx.newPage();
-  page.on('console', (m) => { if (m.type() === 'error') allErrors.push('console: ' + m.text()); });
+  page.on('console', (m) => {
+    const t = m.text();
+    // 忽略边界测试故意触发的 422/429 网络响应日志（非代码缺陷）
+    if (m.type() === 'error' && !/Failed to load resource|422|429/.test(t)) allErrors.push('console: ' + t);
+  });
   page.on('pageerror', (e) => allErrors.push('pageerror: ' + e.message));
   page.on('dialog', (d) => d.accept());
   return page;
@@ -57,12 +61,21 @@ const toastShown = (page) => page.evaluate(() => {
 const A = await newPage();
 const B = await newPage();
 
+// 平台化后进站落点是 GameHub（选游戏），需先点进 brass 才能操作房间列表层
+async function enterBrass(page) {
+  await page.waitForSelector('.gh-card[data-game-id="brass"]', { timeout: 10000 });
+  await page.locator('.gh-card[data-game-id="brass"]').click();
+  await page.waitForSelector('#lobby', { timeout: 6000 });
+}
+
 // A 建普通房；B 观战（用 B 的聊天框做边界测试）
 await register(A, U_A, '玩家A');
+await enterBrass(A);
 await A.getByPlaceholder('房间名（可留空）').fill('边界测试房' + rnd);
 await A.getByRole('button', { name: '创建' }).click();
 await A.waitForSelector('.seats .seat', { timeout: 8000 });
 await register(B, U_B, '观众B');
+await enterBrass(B);
 await B.getByRole('button', { name: '刷新列表' }).click();
 await B.waitForSelector('.roomrow', { timeout: 8000 });
 await B.locator('.roomrow', { hasText: '边界测试房' + rnd }).getByRole('button', { name: '观战' }).click();

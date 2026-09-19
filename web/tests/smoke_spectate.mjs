@@ -49,9 +49,17 @@ async function register(page, U, nick) {
 const A = await newPage();
 const B = await newPage();
 
+// 平台化后进站落点是 GameHub（选游戏），需先点进 brass 才能操作房间列表层
+async function enterBrass(page) {
+  await page.waitForSelector('.gh-card[data-game-id="brass"]', { timeout: 10000 });
+  await page.locator('.gh-card[data-game-id="brass"]').click();
+  await page.waitForSelector('#lobby', { timeout: 6000 });
+}
+
 // ---------------- A 注册并建普通房（停留在大厅阶段） ----------------
 await register(A, U_A, '玩家A');
 assert('A 注册登录成功', true);
+await enterBrass(A);
 await A.getByPlaceholder('房间名（可留空）').fill('观战测试房' + rnd);
 await A.getByRole('button', { name: '创建' }).click();
 await A.waitForSelector('.seats .seat', { timeout: 8000 });
@@ -60,6 +68,7 @@ assert('A 建房成功（座位视图）', true);
 // ---------------- B 注册，大厅观战 A 的房（等待开局视图） ----------------
 await register(B, U_B, '观众B');
 assert('B 注册登录成功', true);
+await enterBrass(B);
 await B.getByRole('button', { name: '刷新列表' }).click();
 await B.waitForSelector('.roomrow', { timeout: 8000 });
 const specBtn = B.locator('.roomrow', { hasText: '观战测试房' + rnd }).getByRole('button', { name: '观战' });
