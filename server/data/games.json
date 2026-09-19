@@ -1,0 +1,28 @@
+[
+  {
+    "gameId": "brass",
+    "name": "工业革命·兰开夏",
+    "cover": "/games/brass/cover.webp",
+    "minPlayers": 2,
+    "maxPlayers": 4,
+    "duration": 60,
+    "weight": "重",
+    "tagline": "运河与铁路时代，靠建厂与连接赢下兰开夏",
+    "tags": ["支持观战", "游客可玩", "AI 陪练"],
+    "status": "available",
+    "transition": { "template": "coverPush", "duration": 1700, "accent": "#378ADD" }
+  },
+  {
+    "gameId": "loveletter",
+    "name": "情书",
+    "cover": "",
+    "minPlayers": 2,
+    "maxPlayers": 4,
+    "duration": 15,
+    "weight": "轻",
+    "tagline": "16 张牌的推理与心跳",
+    "tags": [],
+    "status": "coming",
+    "transition": { "template": "coverPush", "duration": 900, "accent": "#D4537E" }
+  }
+]

@@ -30,7 +30,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from . import auth_db, db, rooms
+from . import auth_db, db, games as games_mod, rooms
 from .auth import router as auth_router, get_optional_user, get_current_user, init_auth
 from engine import actions as engine_actions
 from engine import data as engine_data
@@ -282,6 +282,12 @@ def local_ips():
 @app.get('/api/health')
 def health():
     return {'status': 'ok', 'engine': 'ready', 'lan': local_ips()}
+
+
+@app.get('/api/games')
+def list_games():
+    """平台游戏清单（平台壳唯一数据源；新增游戏只改 data/games.json）。"""
+    return {'games': games_mod.list_games()}
 
 
 @app.get('/api/static-data')
