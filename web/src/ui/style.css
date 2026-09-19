@@ -822,3 +822,130 @@ input:focus, select:focus { border-color: var(--accent); }
 }
 #chatdock .cp-input:focus { outline: none; border-color: var(--accent); }
 #chatdock .cp-send { padding: 6px 12px; font-size: 12.5px; }
+
+/* ================= GameHub 平台大厅（暖白壳，变量来自 body.theme-platform） ================= */
+
+#gamehub {
+  position: fixed; inset: 0; z-index: 5; overflow-y: auto;
+  background: var(--bg); color: var(--text);
+  pointer-events: auto;
+}
+.gh-wrap { max-width: 1080px; margin: 0 auto; padding: 20px 28px 40px; min-height: 100%; display: flex; flex-direction: column; }
+
+.gh-top { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 6px 0 18px; }
+.gh-brand { display: flex; align-items: center; gap: 10px; margin-right: auto; }
+.gh-logo {
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--accent); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 19px; font-weight: 700;
+}
+.gh-site { font-size: 17px; font-weight: 700; letter-spacing: .02em; }
+.gh-join { display: flex; align-items: center; gap: 8px; }
+#gh-code-input {
+  width: 140px; padding: 8px 12px; font-size: 14px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 8px; color: var(--text);
+  text-transform: uppercase;
+}
+#gh-code-input:focus { outline: none; border-color: var(--accent); }
+#gh-code-err { flex-basis: 100%; color: var(--danger); font-size: 13px; min-height: 0; padding-left: 2px; }
+#gh-code-err:empty { display: none; }
+
+.gh-main { flex: 1; padding: 24px 0 8px; }
+.gh-title { font-size: 30px; font-weight: 700; margin: 0 0 8px; letter-spacing: .01em; }
+.gh-sub { color: var(--muted); font-size: 14px; margin: 0 0 28px; }
+
+.gh-grid {
+  display: grid; gap: 22px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.gh-card {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+  overflow: hidden; cursor: pointer;
+  box-shadow: 0 1px 3px rgba(28, 27, 25, .06);
+  transition: transform .18s ease, box-shadow .18s ease;
+  position: relative;
+}
+.gh-card:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(28, 27, 25, .12); }
+.gh-cover-wrap { aspect-ratio: 3 / 2; background: var(--panel-2); overflow: hidden; }
+.gh-cover { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gh-cover-empty {
+  width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+  font-size: 26px; font-weight: 700; color: var(--muted);
+}
+.gh-body { padding: 16px 18px 18px; }
+.gh-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.gh-meta { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+.gh-tagline { font-size: 13.5px; color: var(--text); opacity: .85; margin: 0 0 12px; line-height: 1.5; }
+.gh-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.gh-chip {
+  font-size: 12px; padding: 3px 9px; border-radius: 999px;
+  background: var(--panel-2); color: var(--muted); border: 1px solid var(--line);
+}
+.gh-chip-muted { opacity: .8; }
+.gh-actions { display: flex; gap: 10px; }
+
+.gh-btn {
+  padding: 9px 16px; font-size: 14px; border-radius: 8px; border: 1px solid transparent;
+  cursor: pointer; font-family: var(--font);
+}
+.gh-btn-primary { background: var(--accent); color: #fff; }
+.gh-btn-primary:hover { filter: brightness(1.08); }
+.gh-btn-ghost { background: transparent; border-color: var(--line); color: var(--text); }
+.gh-btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+/* 灰卡：未开放游戏，整卡不可交互 */
+.gh-card.locked { cursor: default; filter: grayscale(.9); opacity: .62; }
+.gh-card.locked:hover { transform: none; box-shadow: 0 1px 3px rgba(28, 27, 25, .06); }
+.gh-badge {
+  position: absolute; top: 12px; right: 12px; z-index: 2;
+  font-size: 12px; padding: 4px 10px; border-radius: 999px;
+  background: rgba(28, 27, 25, .72); color: #F6F3EE;
+}
+
+/* 虚线占位卡 */
+.gh-card.gh-placeholder {
+  border: 1.5px dashed var(--line); background: transparent; box-shadow: none;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 300px; cursor: default; color: var(--muted);
+}
+.gh-card.gh-placeholder:hover { transform: none; box-shadow: none; }
+.gh-plus { font-size: 34px; font-weight: 300; line-height: 1; margin-bottom: 8px; }
+.gh-ph-text { font-size: 14px; }
+
+/* 骨架卡 */
+.gh-card.gh-skel { cursor: default; padding-bottom: 18px; }
+.gh-card.gh-skel:hover { transform: none; }
+.gh-skel-cover { aspect-ratio: 3 / 2; background: var(--panel-2); }
+.gh-skel-line { height: 14px; border-radius: 7px; background: var(--panel-2); margin: 16px 18px 0; }
+.gh-skel-line.short { width: 55%; margin-top: 10px; }
+.gh-skel-cover, .gh-skel-line { animation: gh-pulse 1.4s ease-in-out infinite; }
+@keyframes gh-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+
+/* 失败态 */
+.gh-err {
+  grid-column: 1 / -1; text-align: center; padding: 60px 0;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+}
+.gh-err-text { font-size: 16px; color: var(--muted); }
+
+.gh-foot {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  padding: 26px 0 6px; color: var(--muted); font-size: 13px;
+}
+.gh-link {
+  background: none; border: none; padding: 0; font-size: 13px; font-family: var(--font);
+  color: var(--muted); cursor: pointer; text-decoration: none;
+}
+.gh-link:hover { text-decoration: underline; color: var(--text); }
+.gh-ver { opacity: .6; }
+
+/* 手机端：单列、房间号输入收窄 */
+@media (max-width: 520px) {
+  .gh-wrap { padding: 14px 16px 28px; }
+  .gh-grid { grid-template-columns: 1fr; }
+  .gh-title { font-size: 24px; }
+  #gh-code-input { width: 110px; }
+  .gh-actions { flex-wrap: wrap; }
+}
