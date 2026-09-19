@@ -65,13 +65,24 @@ async function request(method, path, { body, params, signal } = {}) {
   return data;
 }
 
+/* 游戏清单（/api/games）60s 内存缓存：大厅进站必调，避免反复打后端。 */
+let _gamesCache = null;   // { at, data }
+export async function fetchGames() {
+  if (_gamesCache && Date.now() - _gamesCache.at < 60 * 1000) return _gamesCache.data;
+  const data = (await request('GET', '/api/games')).games || [];
+  _gamesCache = { at: Date.now(), data };
+  return data;
+}
+export function invalidateGamesCache() { _gamesCache = null; }
+
 export const api = {
   health: () => request('GET', '/api/health'),
   staticData: () => request('GET', '/api/static-data'),
+  games: fetchGames,
 
   listRooms: () => request('GET', '/api/rooms'),
-  createRoom: (roomName, playerName, withBot = false, password = '') =>
-    request('POST', '/api/rooms', { body: { roomName, playerName, withBot: !!withBot, password: password || '' } }),
+  createRoom: (roomName, playerName, withBot = false, password = '', gameId = 'brass') =>
+    request('POST', '/api/rooms', { body: { roomName, playerName, withBot: !!withBot, password: password || '', gameId } }),
   joinRoom: (roomId, playerName, password = '') => request('POST', `/api/rooms/${roomId}/join`, { body: { playerName, password: password || '' } }),
   leaveRoom: (roomId, token) => request('POST', `/api/rooms/${roomId}/leave`, { body: { token } }),
   /** 观战（必须登录；密码房同样要密码）：返回 { token, room }，token 只读。 */

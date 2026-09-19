@@ -29,6 +29,7 @@ export class Session {
     this.roomId = null;
     this.token = null;
     this.playerName = '';
+    this.gameId = '';        // 当前选中/所在游戏（不持久化：刷新永远落 GameHub）
     this.room = null;        // room_view 结果
     this.state = null;       // view_for 结果
     this.rev = '';
@@ -96,12 +97,15 @@ export class Session {
 
   async health() { return api.health(); }
   async listRooms() { return (await api.listRooms()).rooms || []; }
+  /** 游戏清单（60s 内存缓存在 api 层）。 */
+  async games() { return api.games(); }
 
-  async createRoom(roomName, playerName, withBot = false, password = '') {
-    const r = await api.createRoom(roomName, playerName, withBot, password);
+  async createRoom(roomName, playerName, withBot = false, password = '', gameId = 'brass') {
+    const r = await api.createRoom(roomName, playerName, withBot, password, gameId);
     this.roomId = r.room.roomId;
     this.token = r.token;
     this.playerName = playerName;
+    this.gameId = r.room.gameId || gameId;
     this._persist();
     this._adopt(r);
     this.startPolling();
@@ -113,6 +117,7 @@ export class Session {
     this.roomId = r.room.roomId;
     this.token = r.token;
     this.playerName = playerName;
+    this.gameId = r.room.gameId || '';
     this._persist();
     this._adopt(r);
     this.startPolling();
