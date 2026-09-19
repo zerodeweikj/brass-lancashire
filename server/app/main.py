@@ -95,6 +95,7 @@ class CreateRoomReq(BaseModel):
     playerName: str = Field(default='玩家1', max_length=16)
     withBot: bool = False        # 机器人陪练房：机器人兼房主、永远已准备、只会跳过
     password: str = Field(default='', max_length=32)  # 非空则为带密码房间
+    gameId: str = Field(default='brass', max_length=32)  # 平台游戏 id（见 /api/games）
 
 
 class JoinReq(BaseModel):
@@ -346,7 +347,13 @@ def list_rooms():
 @app.post('/api/rooms')
 def create_room(req: CreateRoomReq, request: Request, current_user: dict = Depends(get_optional_user)):
     rate_limit(request, 'rooms', 10, 60)
-    room, token = rooms.create_room(req.roomName, req.playerName, with_bot=req.withBot, password=req.password)
+    g = games_mod.get_game(req.gameId)
+    if not g:
+        raise HTTPException(400, '未知游戏')
+    if g['status'] != 'available':
+        raise HTTPException(400, '该游戏暂未开放')
+    room, token = rooms.create_room(req.roomName, req.playerName, with_bot=req.withBot,
+                                    password=req.password, game_id=req.gameId)
     # 登录用户建房即把账号绑到房主座位（游客留空，保留匿名游玩）
     if current_user:
         room['seats'][0]['userId'] = current_user['id']

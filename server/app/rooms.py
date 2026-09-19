@@ -30,7 +30,7 @@ def new_id(n=6):
 BOT_NAME = '机器人'
 
 
-def create_room(room_name, host_name, with_bot=False, password=''):
+def create_room(room_name, host_name, with_bot=False, password='', game_id='brass'):
     """创建房间。
 
     with_bot=True 时开「机器人陪练房」：0 号座位是服务端机器人并兼任房主，
@@ -57,7 +57,7 @@ def create_room(room_name, host_name, with_bot=False, password=''):
         'status': 'lobby',            # lobby / playing / finished
         'hostToken': host_token,
         'bot': bool(with_bot),
-        'gameId': None,
+        'gameId': game_id,
         'rev': 1,
         'createdAt': time.time(),
         'password': pw,               # 空字符串 = 无密码
@@ -327,6 +327,7 @@ def public_room(room):
     """大厅列表用：不含任何 token。"""
     return {
         'roomId': room['roomId'], 'name': room['name'], 'status': room['status'],
+        'gameId': room.get('gameId') or 'brass',
         'bot': bool(room.get('bot')),
         'hasPassword': bool(room.get('password')),
         'players': [{'name': s['name'], 'color': s['color'], 'ready': s['ready'],
@@ -344,7 +345,7 @@ def room_view(room, token):
     me = seat_of(room, token)
     return {
         'roomId': room['roomId'], 'name': room['name'], 'status': room['status'],
-        'gameId': room.get('gameId'), 'rev': room.get('rev', 0),
+        'gameId': room.get('gameId') or 'brass', 'rev': room.get('rev', 0),
         'bot': bool(room.get('bot')),
         # 机器人房里机器人兼任房主，但开局/重开的操作权交给人类
         'isHost': bool(me and (room['hostToken'] == token or room.get('bot'))),
