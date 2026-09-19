@@ -232,6 +232,7 @@ def _record_results(room, st):
     ranking = st.get('ranking') or []
     scores = st.get('scores') or {}
     n = len(st.get('players') or []) or len(ranking)
+    game_id = room.get('gameId') or 'brass'
     for seat in room.get('seats', []):
         uid = seat.get('userId')
         pid = seat.get('playerId')
@@ -243,7 +244,7 @@ def _record_results(room, st):
             rank = n
         score = int((scores.get(pid) or {}).get('total') or 0)
         try:
-            auth_db.add_game_result(uid, n, rank, score)
+            auth_db.add_game_result(uid, n, rank, score, game_id=game_id)
         except Exception as e:   # 账号库挂了不影响对局收尾
             print('[stats] 战绩写入失败 user=%s: %r' % (uid, e))
 

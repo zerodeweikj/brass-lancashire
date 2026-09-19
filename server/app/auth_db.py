@@ -96,6 +96,7 @@ def init_auth_db():
     """建表（幂等）。首次调用时建立引擎，并打印当前账号库后端。"""
     eng = _get_engine()
     Base.metadata.create_all(eng)
+    _migrate_columns(eng)
     if _USE_POSTGRES:
         print('[auth] 账号库后端：Postgres（DATABASE_URL）')
     else:
@@ -103,6 +104,20 @@ def init_auth_db():
         print('[auth] 警告：未设置 DATABASE_URL，账号库回退到本地 SQLite -> ' + _LOCAL_SQLITE)
         print('[auth] 警告：Render 等云平台磁盘为临时盘，重启/重新部署即清空，账号会全部丢失！')
         print('[auth] 请务必在 Render 控制台配置 DATABASE_URL（Neon Postgres 连接串）。')
+
+
+def _migrate_columns(eng):
+    """给已存在的旧表补新列（create_all 不会给已有表加列）。PG/SQLite 通用、幂等：
+    列已存在时 ALTER 报错被吞掉即可。新列必须带 DEFAULT，否则旧行非空约束过不了。"""
+    from sqlalchemy import text
+    for stmt in (
+        "ALTER TABLE game_results ADD COLUMN game_id VARCHAR(32) NOT NULL DEFAULT 'brass'",
+    ):
+        try:
+            with eng.begin() as conn:
+                conn.execute(text(stmt))
+        except Exception:
+            pass  # 列已存在（新库 create_all 已带）
 
 
 # ---------------- 模型 ----------------
@@ -143,6 +158,7 @@ class GameResult(Base):
     player_count = Column(Integer, nullable=False)
     rank = Column(Integer, nullable=False)      # 1 起；ranking 里找不到时兜底为末位
     score = Column(Integer, nullable=False)     # 终局总分（含连接分）
+    game_id = Column(String(32), nullable=False, default='brass')   # 所属游戏（平台化）
 
 
 # ---------------- 归一化工具 ----------------
@@ -373,10 +389,10 @@ def _check_secret(hash_str, secret):
 
 # ---------------- 战绩 ----------------
 
-def add_game_result(user_id, player_count, rank, score, played_at=None):
+def add_game_result(user_id, player_count, rank, score, played_at=None, game_id='brass'):
     """记一条终局成绩。player_count/rank/score 由调用方从引擎终局态取。"""
     rec = GameResult(user_id=int(user_id), player_count=int(player_count),
-                     rank=int(rank), score=int(score),
+                     rank=int(rank), score=int(score), game_id=(game_id or 'brass'),
                      played_at=played_at or datetime.utcnow())
     def _fn(s):
         s.add(rec)
@@ -410,6 +426,7 @@ def get_user_stats(user_id, recent_limit=20):
             'avgRank': round(sum(r.rank for r in rows) / total, 1),
             'recent': [{
                 'playedAt': r.played_at.isoformat() if r.played_at else None,
+                'gameId': r.game_id or 'brass',
                 'playerCount': r.player_count,
                 'rank': r.rank,
                 'score': r.score,
