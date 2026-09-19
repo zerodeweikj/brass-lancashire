@@ -949,3 +949,34 @@ input:focus, select:focus { border-color: var(--accent); }
   #gh-code-input { width: 110px; }
   .gh-actions { flex-wrap: wrap; }
 }
+
+/* ================= 进场过渡层（coverPush / fade 兜底） ================= */
+
+#stage-transition {
+  position: fixed; inset: 0; z-index: 90;
+  pointer-events: auto;            /* 吃掉动效期间所有点击，防重复触发 */
+}
+#stage-transition.st-fade { opacity: 0; }
+
+#stage-transition.st-coverpush { background: transparent; }
+#stage-transition .st-bg { position: absolute; inset: 0; opacity: 0; overflow: hidden; }
+#stage-transition .st-hero {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+}
+#stage-transition .st-clone {
+  position: fixed; object-fit: cover; border-radius: 0;
+  transform-origin: center center;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, .35);
+}
+#stage-transition.st-plain,
+#stage-transition.st-match { overflow: hidden; }
+#stage-transition .st-title {
+  position: absolute; left: 0; right: 0; bottom: 12%;
+  text-align: center; font-size: 30px; font-weight: 700; color: rgba(255, 255, 255, .92);
+  text-shadow: 0 2px 14px rgba(0, 0, 0, .45); letter-spacing: .04em;
+}
+
+/* reduced-motion 下过渡层禁用一切 transform 动画（JS 侧已走快速通道，双保险） */
+@media (prefers-reduced-motion: reduce) {
+  #stage-transition, #stage-transition * { transition-duration: 150ms !important; }
+}
